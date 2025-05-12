@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 // Mock event data
 interface Event {
@@ -63,7 +64,17 @@ const Toast = ({
   );
 };
 
-export default function Home() {
+const formatDate = (date: Date) => {
+  return date.toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
+export default function EventListPage() {
   const [events, setEvents] = useState<Event[]>(MOCK_EVENTS);
   const [description, setDescription] = useState("");
   const [points, setPoints] = useState(1);
@@ -154,137 +165,49 @@ export default function Home() {
     setPoints(1);
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  };
-
   return (
-    <main className="max-w-md mx-auto p-4">
-      {" "}
-      <h1 className="text-2xl font-bold mb-6 text-center">Doy-Pal</h1>{" "}
-      <div className="bg-blue-50 p-4 rounded-md mb-6 flex justify-between items-center">
-        {" "}
+    <main className="max-w-md mx-auto p-4 pb-24">
+      <h1 className="text-2xl font-bold mb-6 text-center">Doy-Pal</h1>
+      <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-md mb-6 flex justify-between items-center">
         <div>
-          {" "}
-          <h2 className="text-lg font-semibold">Total Points</h2>{" "}
-          <p className="text-sm text-gray-600">All time</p>{" "}
-        </div>{" "}
-        <div className="text-3xl font-bold text-blue-600">{totalPoints}</div>{" "}
-      </div>{" "}
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        className="bg-white p-4 rounded-md shadow-sm mb-6"
-      >
-        {" "}
-        <h2 className="text-lg font-semibold mb-4">
-          {" "}
-          {editingEvent ? "Edit Event" : "Add New Event"}{" "}
-        </h2>{" "}
-        <div className="mb-4">
-          {" "}
-          <label
-            className="block text-sm font-medium mb-1"
-            htmlFor="description"
-          >
-            {" "}
-            Event Description{" "}
-          </label>{" "}
-          <input
-            type="text"
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-2 border rounded-md"
-            placeholder="What did your child do?"
-          />{" "}
-        </div>{" "}
-        <div className="mb-4">
-          {" "}
-          <label className="block text-sm font-medium mb-1" htmlFor="points">
-            {" "}
-            Points{" "}
-          </label>{" "}
-          <input
-            type="number"
-            id="points"
-            value={points}
-            onChange={(e) => setPoints(Number(e.target.value))}
-            min="1"
-            className="w-full p-2 border rounded-md"
-          />{" "}
-        </div>{" "}
-        <div className="flex gap-2">
-          {" "}
-          <button
-            type="submit"
-            className="bg-blue-500 text-white py-2 px-4 rounded-md flex-grow"
-          >
-            {" "}
-            {editingEvent ? "Update Event" : "Add Event"}{" "}
-          </button>{" "}
-          {editingEvent && (
-            <button
-              type="button"
-              onClick={cancelEdit}
-              className="bg-gray-300 py-2 px-4 rounded-md"
-            >
-              {" "}
-              Cancel{" "}
-            </button>
-          )}{" "}
-        </div>{" "}
-      </form>{" "}
-      <h2 className="text-lg font-semibold mb-2">Event History</h2>{" "}
+          <h2 className="text-lg font-semibold">Total Points</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-300">All time</p>
+        </div>
+        <div className="text-3xl font-bold text-blue-600 dark:text-blue-300">
+          {totalPoints}
+        </div>
+      </div>
+      <h2 className="text-lg font-semibold mb-2">Event History</h2>
       {events.length === 0 ? (
         <p className="text-gray-500 text-center py-8">No events recorded yet</p>
       ) : (
         <div className="space-y-3">
-          {" "}
           {events.map((event) => (
-            <div key={event.id} className="bg-white p-3 rounded-md shadow-sm">
-              {" "}
+            <div
+              key={event.id}
+              className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-sm"
+            >
               <div className="flex justify-between">
-                {" "}
-                <div className="font-medium">{event.description}</div>{" "}
-                <div className="font-bold text-blue-600">+{event.points}</div>{" "}
-              </div>{" "}
-              <div className="text-gray-500 text-sm mt-1">
-                {" "}
-                {formatDate(event.timestamp)}{" "}
-              </div>{" "}
-              <div className="flex gap-2 mt-2">
-                {" "}
-                <button
-                  onClick={() => handleEdit(event)}
-                  className="text-sm text-blue-600 flex-grow text-center py-1 border border-blue-200 rounded-md"
-                >
-                  {" "}
-                  Edit{" "}
-                </button>{" "}
-                <button
-                  onClick={() => handleDelete(event.id)}
-                  className="text-sm text-red-600 flex-grow text-center py-1 border border-red-200 rounded-md"
-                >
-                  {" "}
-                  Delete{" "}
-                </button>{" "}
-              </div>{" "}
+                <div className="font-medium">{event.description}</div>
+                <div className="font-bold text-blue-600 dark:text-blue-300">
+                  +{event.points}
+                </div>
+              </div>
+              <div className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                {formatDate(event.timestamp)}
+              </div>
             </div>
-          ))}{" "}
+          ))}
         </div>
-      )}{" "}
-      <Toast
-        message={toastMessage}
-        isVisible={toastVisible}
-        type={toastType}
-      />{" "}
+      )}
+      <Link
+        href="/event"
+        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-3xl shadow-lg dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-200"
+        aria-label="Add Event"
+      >
+        +
+      </Link>
+      <Toast message={toastMessage} isVisible={toastVisible} type={toastType} />
     </main>
   );
 }
