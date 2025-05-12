@@ -1,3 +1,55 @@
+# Doy-Pal: Child Behavior Tracking App
+
+## Project Summary
+
+Doy-Pal is a simple application designed to help parents track their child's behavior and assign points accordingly. The app allows for manual input of events (like "helped with meal preparation" or "brushed teeth before bed") and associates these events with points. Parents can then use these points as part of a reward system.
+
+### MVP Features
+
+1. **Manual Event Input**
+
+   - Free-text description of behavior/event
+   - Point value assignment
+   - Date and time are automatically recorded
+
+2. **Event List View**
+
+   - Chronological display of all events
+   - Each entry shows event description, points, and timestamp
+   - Metadata includes date, time, day of week, day of month
+
+3. **Edit & Delete Events**
+
+   - Ability to modify event descriptions and point values
+   - Option to delete events
+
+4. **Points Summary**
+
+   - Display of total points accumulated
+
+5. **User Feedback**
+
+   - Toast messages to confirm actions (add, edit, delete)
+
+6. **Data Storage**
+   - Local storage for proof of concept
+   - No user accounts or cloud sync for MVP
+
+### Non-Features (for MVP)
+
+- No preset list of events
+- No multi-child support
+- No rewards management within the app
+- No charts or advanced analytics
+
+### Future Considerations
+
+- Supabase integration for data persistence
+- Analytics and insights based on collected metadata
+- Multi-child support
+- Preset event templates
+- Rewards management
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
