@@ -2,13 +2,16 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function EventFormPage() {
+  const router = useRouter();
   const [description, setDescription] = useState("");
   const [points, setPoints] = useState(1);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   const showToast = (
@@ -21,16 +24,52 @@ export default function EventFormPage() {
     setTimeout(() => setToastVisible(false), 3000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim()) {
       showToast("Please enter an event description", "error");
       return;
     }
-    showToast("Event saved (mocked)", "success");
-    setDescription("");
-    setPoints(1);
-    formRef.current?.reset();
+
+    setIsSubmitting(true);
+    try {
+      const now = new Date();
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+
+      const response = await fetch("/api/events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          description: description.trim(),
+          points,
+          day_of_week: days[now.getDay()],
+          day_of_month: now.getDate(),
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create event");
+
+      showToast("Event added successfully");
+      setDescription("");
+      setPoints(1);
+      formRef.current?.reset();
+      router.push("/");
+    } catch (error) {
+      console.error("Error creating event:", error);
+      showToast("Failed to create event", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -60,6 +99,7 @@ export default function EventFormPage() {
             onChange={(e) => setDescription(e.target.value)}
             className="w-full p-2 border rounded-md bg-inherit text-inherit"
             placeholder="What did your child do?"
+            disabled={isSubmitting}
           />
         </div>
         <div className="mb-4">
@@ -73,13 +113,17 @@ export default function EventFormPage() {
             onChange={(e) => setPoints(Number(e.target.value))}
             min="1"
             className="w-full p-2 border rounded-md bg-inherit text-inherit"
+            disabled={isSubmitting}
           />
         </div>
         <button
           type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded-md w-full"
+          className={`bg-blue-500 text-white py-2 px-4 rounded-md w-full ${
+            isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={isSubmitting}
         >
-          Save Event
+          {isSubmitting ? "Saving..." : "Save Event"}
         </button>
       </form>
       {toastVisible && (

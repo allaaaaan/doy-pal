@@ -1,0 +1,46 @@
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "../lib/supabase";
+import { Database } from "../types/database.types";
+
+type Event = Database["public"]["Tables"]["events"]["Row"];
+type NewEvent = Database["public"]["Tables"]["events"]["Insert"];
+
+// GET /api/events
+export async function GET() {
+  try {
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .order("timestamp", { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch events" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/events
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { data, error } = await supabase
+      .from("events")
+      .insert(body)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error creating event:", error);
+    return NextResponse.json(
+      { error: "Failed to create event" },
+      { status: 500 }
+    );
+  }
+}

@@ -1,45 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Database } from "./api/types/database.types";
 
-// Mock event data
-interface Event {
-  id: string;
-  description: string;
-  points: number;
-  timestamp: Date;
-  dayOfWeek: string;
-  dayOfMonth: number;
-}
-
-const MOCK_EVENTS: Event[] = [
-  {
-    id: "1",
-    description: "Helped set the table for dinner",
-    points: 2,
-    timestamp: new Date(2023, 11, 1, 17, 30),
-    dayOfWeek: "Friday",
-    dayOfMonth: 1,
-  },
-  {
-    id: "2",
-    description: "Brushed teeth before bed without reminding",
-    points: 1,
-    timestamp: new Date(2023, 11, 1, 21, 0),
-    dayOfWeek: "Friday",
-    dayOfMonth: 1,
-  },
-  {
-    id: "3",
-    description: "Cleaned up toys after playing",
-    points: 3,
-    timestamp: new Date(2023, 11, 2, 15, 45),
-    dayOfWeek: "Saturday",
-    dayOfMonth: 2,
-  },
-];
+type Event = Database["public"]["Tables"]["events"]["Row"];
+type PointSummary = Database["public"]["Views"]["point_summaries"]["Row"];
 
 // Toast component
 const Toast = ({
@@ -64,28 +30,18 @@ const Toast = ({
   );
 };
 
-const formatDate = (date: Date) => {
-  return date.toLocaleString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-};
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  return date.toLocaleString();
+}
 
 export default function EventListPage() {
-  const [events, setEvents] = useState<Event[]>(MOCK_EVENTS);
-  const [description, setDescription] = useState("");
-  const [points, setPoints] = useState(1);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [pointSummary, setPointSummary] = useState<PointSummary | null>(null);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
-
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const totalPoints = events.reduce((sum, event) => sum + event.points, 0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const showToast = (
     message: string,
@@ -97,73 +53,62 @@ export default function EventListPage() {
     setTimeout(() => setToastVisible(false), 3000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!description.trim()) {
-      showToast("Please enter an event description", "error");
-      return;
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch("/api/events");
+      if (!response.ok) throw new Error("Failed to fetch events");
+      const data = await response.json();
+      setEvents(data);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      showToast("Failed to load events", "error");
     }
+  };
 
-    const now = new Date();
-    const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-
-    if (editingEvent) {
-      // Update existing event
-      setEvents(
-        events.map((event) =>
-          event.id === editingEvent.id
-            ? { ...event, description, points }
-            : event
-        )
-      );
-      showToast("Event updated successfully");
-    } else {
-      // Add new event
-      const newEvent: Event = {
-        id: Date.now().toString(),
-        description,
-        points,
-        timestamp: now,
-        dayOfWeek: days[now.getDay()],
-        dayOfMonth: now.getDate(),
-      };
-      setEvents([newEvent, ...events]);
-      showToast("Event added successfully");
+  const fetchPointSummary = async () => {
+    try {
+      const response = await fetch("/api/points");
+      if (!response.ok) throw new Error("Failed to fetch points");
+      const data = await response.json();
+      setPointSummary(data);
+    } catch (error) {
+      console.error("Error fetching points:", error);
+      showToast("Failed to load points summary", "error");
     }
-
-    // Reset form
-    setDescription("");
-    setPoints(1);
-    setEditingEvent(null);
-    formRef.current?.reset();
   };
 
-  const handleEdit = (event: Event) => {
-    setEditingEvent(event);
-    setDescription(event.description);
-    setPoints(event.points);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/events/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete event");
+      await fetchEvents();
+      await fetchPointSummary();
+      showToast("Event deleted successfully");
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      showToast("Failed to delete event", "error");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setEvents(events.filter((event) => event.id !== id));
-    showToast("Event deleted");
-  };
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      await Promise.all([fetchEvents(), fetchPointSummary()]);
+      setIsLoading(false);
+    };
+    loadData();
+  }, []);
 
-  const cancelEdit = () => {
-    setEditingEvent(null);
-    setDescription("");
-    setPoints(1);
-  };
+  if (isLoading) {
+    return (
+      <main className="max-w-md mx-auto p-4 pb-24">
+        <h1 className="text-2xl font-bold mb-6 text-center">Doy-Pal</h1>
+        <div className="text-center">Loading...</div>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-md mx-auto p-4 pb-24">
@@ -174,7 +119,7 @@ export default function EventListPage() {
           <p className="text-sm text-gray-600 dark:text-gray-300">All time</p>
         </div>
         <div className="text-3xl font-bold text-blue-600 dark:text-blue-300">
-          {totalPoints}
+          {pointSummary?.total_points || 0}
         </div>
       </div>
       <h2 className="text-lg font-semibold mb-2">Event History</h2>
@@ -196,6 +141,12 @@ export default function EventListPage() {
               <div className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                 {formatDate(event.timestamp)}
               </div>
+              <button
+                onClick={() => handleDelete(event.id)}
+                className="text-red-500 text-sm mt-2 hover:text-red-600"
+              >
+                Delete
+              </button>
             </div>
           ))}
         </div>
