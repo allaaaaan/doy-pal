@@ -4,6 +4,12 @@ import { Database } from "../../types/database.types";
 
 type Event = Database["public"]["Tables"]["events"]["Row"];
 
+type ResponseData = {
+  data?: Event;
+  error?: string;
+  message?: string;
+};
+
 // GET /api/events/[id]
 export async function GET(
   request: NextRequest,

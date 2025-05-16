@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { supabase } from "../lib/supabase";
 
+type ResponseData = {
+  message?: string;
+  error?: string;
+};
+
 // GET /api/schema
 export async function GET() {
   try {

@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../lib/supabase";
+import { Database } from "../types/database.types";
+
+type PointSummary = Database["public"]["Views"]["point_summaries"]["Row"];
+
+type ResponseData = {
+  data?: PointSummary;
+  error?: string;
+  message?: string;
+};
 
 // GET /api/points
 export async function GET() {
