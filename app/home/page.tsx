@@ -136,7 +136,7 @@ export default function EventListPage() {
       />
       <Link
         href="/event"
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-3xl shadow-lg dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-200"
+        className="fixed bottom-20 right-6 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-3xl shadow-lg dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-200"
         aria-label="Add Event"
       >
         +

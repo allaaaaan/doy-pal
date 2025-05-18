@@ -1,4 +1,5 @@
 import { Database } from "../api/types/database.types";
+import { useEffect, useState } from "react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Edit, Trash2, Award, Calendar, Clock } from "lucide-react";
 
@@ -11,9 +12,14 @@ interface EventItemProps {
 }
 
 export default function EventItem({ event, onDelete, onEdit }: EventItemProps) {
-  const eventDate = new Date(event.timestamp);
-  const formattedDate = format(eventDate, "MMM d, yyyy 'at' h:mm a");
-  const timeAgo = formatDistanceToNow(eventDate, { addSuffix: true });
+  const [formattedDate, setFormattedDate] = useState("");
+  const [timeAgo, setTimeAgo] = useState("");
+
+  useEffect(() => {
+    const eventDate = new Date(event.timestamp);
+    setFormattedDate(format(eventDate, "MMM d, yyyy 'at' h:mm a"));
+    setTimeAgo(formatDistanceToNow(eventDate, { addSuffix: true }));
+  }, [event.timestamp]);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-3 flex flex-col gap-2">
