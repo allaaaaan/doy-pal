@@ -20,7 +20,7 @@ export default function EventHistory({
       {events.length === 0 ? (
         <p className="text-gray-500 text-center py-8">No events recorded yet</p>
       ) : (
-        <div className="h-[calc(100vh-250px)] overflow-y-auto pr-1 -mr-1 pb-4">
+        <div className="h-[calc(100vh-18rem)] overflow-y-auto pr-1 -mr-1 pb-4">
           <div className="space-y-3">
             {events.map((event) => (
               <EventItem

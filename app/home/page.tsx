@@ -257,9 +257,9 @@ export default function EventListPage() {
   }
 
   return (
-    <main className="max-w-md mx-auto p-4 pb-24">
-      <h1 className="text-2xl font-bold mb-6 text-center">Doy-Pal</h1>
-      <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-md mb-6 flex justify-between items-center">
+    <main className="max-w-md mx-auto h-screen overflow-hidden flex flex-col p-4">
+      <h1 className="text-2xl font-bold mb-4 text-center">Doy-Pal</h1>
+      <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-md mb-4 flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold">Total Points</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300">All time</p>
@@ -268,11 +268,13 @@ export default function EventListPage() {
           {pointSummary?.total_points || 0}
         </div>
       </div>
-      <EventHistory
-        events={events}
-        onDelete={handleDelete}
-        onEdit={handleEdit}
-      />
+      <div className="flex-1 min-h-0">
+        <EventHistory
+          events={events}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+        />
+      </div>
       <Link
         href="/event"
         className="fixed bottom-20 right-6 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-3xl shadow-lg dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-200"
