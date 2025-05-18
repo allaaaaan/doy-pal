@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Database } from "../api/types/database.types";
 import EventHistory from "./EventHistory";
+import { format } from "date-fns";
 
 type Event = Database["public"]["Tables"]["events"]["Row"];
 type PointSummary = Database["public"]["Views"]["point_summaries"]["Row"];
@@ -20,17 +21,30 @@ const EditModal = ({
   onClose: () => void;
   onSave: (
     id: string,
-    updatedEvent: { description: string; points: number }
+    updatedEvent: {
+      description: string;
+      points: number;
+      timestamp: string;
+      day_of_week: string;
+      day_of_month: number;
+    }
   ) => void;
 }) => {
   const [description, setDescription] = useState("");
   const [points, setPoints] = useState(1);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (event) {
       setDescription(event.description);
       setPoints(event.points);
+
+      // Parse event timestamp to set date and time
+      const eventDate = new Date(event.timestamp);
+      setDate(format(eventDate, "yyyy-MM-dd"));
+      setTime(format(eventDate, "HH:mm"));
     }
   }, [event]);
 
@@ -39,7 +53,26 @@ const EditModal = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    onSave(event.id, { description, points });
+
+    // Create timestamp from date and time inputs
+    const timestamp = new Date(`${date}T${time}`);
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+
+    onSave(event.id, {
+      description,
+      points,
+      timestamp: timestamp.toISOString(),
+      day_of_week: days[timestamp.getDay()],
+      day_of_month: timestamp.getDate(),
+    });
     setIsSubmitting(false);
   };
 
@@ -67,7 +100,7 @@ const EditModal = ({
                 disabled={isSubmitting}
               />
             </div>
-            <div className="mb-5">
+            <div className="mb-4">
               <label
                 className="block text-sm font-medium mb-1"
                 htmlFor="edit-points"
@@ -80,6 +113,38 @@ const EditModal = ({
                 value={points}
                 onChange={(e) => setPoints(Number(e.target.value))}
                 min="1"
+                className="w-full p-2 border rounded-md bg-inherit text-inherit"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-sm font-medium mb-1"
+                htmlFor="edit-date"
+              >
+                Date
+              </label>
+              <input
+                type="date"
+                id="edit-date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full p-2 border rounded-md bg-inherit text-inherit"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-sm font-medium mb-1"
+                htmlFor="edit-time"
+              >
+                Time
+              </label>
+              <input
+                type="time"
+                id="edit-time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
                 className="w-full p-2 border rounded-md bg-inherit text-inherit"
                 disabled={isSubmitting}
               />
@@ -208,7 +273,13 @@ export default function EventListPage() {
 
   const handleSaveEdit = async (
     id: string,
-    updatedEvent: { description: string; points: number }
+    updatedEvent: {
+      description: string;
+      points: number;
+      timestamp: string;
+      day_of_week: string;
+      day_of_month: number;
+    }
   ) => {
     try {
       const response = await fetch(`/api/events/${id}`, {

@@ -1,18 +1,28 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 export default function EventFormPage() {
   const router = useRouter();
   const [description, setDescription] = useState("");
   const [points, setPoints] = useState(1);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Set default date and time when component mounts
+  useEffect(() => {
+    const now = new Date();
+    setDate(format(now, "yyyy-MM-dd"));
+    setTime(format(now, "HH:mm"));
+  }, []);
 
   const showToast = (
     message: string,
@@ -33,7 +43,8 @@ export default function EventFormPage() {
 
     setIsSubmitting(true);
     try {
-      const now = new Date();
+      // Create timestamp from date and time inputs
+      const timestamp = new Date(`${date}T${time}`);
       const days = [
         "Sunday",
         "Monday",
@@ -52,8 +63,9 @@ export default function EventFormPage() {
         body: JSON.stringify({
           description: description.trim(),
           points,
-          day_of_week: days[now.getDay()],
-          day_of_month: now.getDate(),
+          timestamp: timestamp.toISOString(),
+          day_of_week: days[timestamp.getDay()],
+          day_of_month: timestamp.getDate(),
         }),
       });
 
@@ -112,6 +124,32 @@ export default function EventFormPage() {
             value={points}
             onChange={(e) => setPoints(Number(e.target.value))}
             min="1"
+            className="w-full p-2 border rounded-md bg-inherit text-inherit"
+            disabled={isSubmitting}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1" htmlFor="date">
+            Date
+          </label>
+          <input
+            type="date"
+            id="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full p-2 border rounded-md bg-inherit text-inherit"
+            disabled={isSubmitting}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1" htmlFor="time">
+            Time
+          </label>
+          <input
+            type="time"
+            id="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
             className="w-full p-2 border rounded-md bg-inherit text-inherit"
             disabled={isSubmitting}
           />
