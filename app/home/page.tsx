@@ -188,13 +188,13 @@ export default function EventListPage() {
       const response = await fetch(`/api/events/${id}`, {
         method: "DELETE",
       });
-      if (!response.ok) throw new Error("Failed to delete event");
+      if (!response.ok) throw new Error("Failed to archive event");
       await fetchEvents();
       await fetchPointSummary();
-      showToast("Event deleted successfully");
+      showToast("Event archived successfully");
     } catch (error) {
-      console.error("Error deleting event:", error);
-      showToast("Failed to delete event", "error");
+      console.error("Error archiving event:", error);
+      showToast("Failed to archive event", "error");
     }
   };
 

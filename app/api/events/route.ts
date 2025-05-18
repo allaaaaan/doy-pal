@@ -17,6 +17,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("events")
       .select("*")
+      .eq("is_active", true)
       .order("timestamp", { ascending: false });
 
     if (error) throw error;
@@ -34,9 +35,13 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const eventData = {
+      ...body,
+      is_active: true,
+    };
     const { data, error } = await supabase
       .from("events")
-      .insert(body)
+      .insert(eventData)
       .select()
       .single();
 

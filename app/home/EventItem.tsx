@@ -105,7 +105,7 @@ export default function EventItem({ event, onDelete, onEdit }: EventItemProps) {
         <button
           onClick={handleDelete}
           className="bg-red-500 text-white h-full w-10 flex items-center justify-center"
-          aria-label="Delete"
+          aria-label="Archive"
         >
           <Trash2 size={16} />
         </button>

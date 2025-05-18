@@ -20,6 +20,7 @@ export async function GET(
       .from("events")
       .select("*")
       .eq("id", params.id)
+      .eq("is_active", true)
       .single();
 
     if (error) throw error;
@@ -44,6 +45,7 @@ export async function PATCH(
       .from("events")
       .update(body)
       .eq("id", params.id)
+      .eq("is_active", true)
       .select()
       .single();
 
@@ -64,15 +66,18 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { error } = await supabase
+    // Perform soft delete by setting is_active to false
+    const { data, error } = await supabase
       .from("events")
-      .delete()
-      .eq("id", params.id);
+      .update({ is_active: false })
+      .eq("id", params.id)
+      .select()
+      .single();
 
     if (error) throw error;
     return NextResponse.json({ message: "Event deleted successfully" });
   } catch (error) {
-    console.error("Error deleting event:", error);
+    console.error("Error soft-deleting event:", error);
     return NextResponse.json(
       { error: "Failed to delete event" },
       { status: 500 }

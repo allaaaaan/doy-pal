@@ -1,65 +1,45 @@
 import { NextResponse } from "next/server";
 import { supabase } from "../lib/supabase";
 
-type ResponseData = {
-  message?: string;
-  error?: string;
-};
-
 // GET /api/schema
 export async function GET() {
   try {
-    // Create events table if it doesn't exist
-    const { error: tableError } = await supabase
-      .from("events")
-      .select("*")
-      .limit(1)
-      .throwOnError();
-
-    if (tableError) {
-      // Table doesn't exist, create it
-      const { error: createError } = await supabase
-        .from("events")
-        .insert({
-          description: "Initial setup",
-          points: 1,
-          day_of_week: "Monday",
-          day_of_month: 1,
-        })
-        .select()
-        .single();
-
-      if (createError) throw createError;
-    }
-
-    // Insert sample data
-    const { error: sampleDataError } = await supabase.from("events").upsert(
-      [
-        {
-          description: "Helped set the table",
-          points: 2,
-          day_of_week: "Monday",
-          day_of_month: 1,
-        },
-        {
-          description: "Brushed teeth without reminding",
-          points: 1,
-          day_of_week: "Monday",
-          day_of_month: 1,
-        },
-      ],
-      { onConflict: "id" }
-    );
-
-    if (sampleDataError) throw sampleDataError;
-
+    // Just provide information about expected schema
     return NextResponse.json({
-      message: "Database schema created successfully",
+      message:
+        "Please run the SQL scripts manually to create/update the schema",
+      expectedSchema: {
+        tables: {
+          events: {
+            columns: [
+              "id (uuid, primary key)",
+              "description (text)",
+              "points (integer)",
+              "timestamp (timestamp)",
+              "day_of_week (text)",
+              "day_of_month (integer)",
+              "created_at (timestamp)",
+              "updated_at (timestamp)",
+              "is_active (boolean, default true)",
+            ],
+          },
+        },
+        views: {
+          point_summaries: {
+            description: "View that calculates points from active events only",
+            columns: [
+              "total_points (integer)",
+              "weekly_points (integer)",
+              "monthly_points (integer)",
+            ],
+          },
+        },
+      },
     });
   } catch (error) {
-    console.error("Error creating database schema:", error);
+    console.error("Error fetching schema info:", error);
     return NextResponse.json(
-      { error: "Failed to create database schema" },
+      { error: "Failed to fetch schema info" },
       { status: 500 }
     );
   }
