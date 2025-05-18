@@ -250,7 +250,7 @@ export default function EventListPage() {
   if (isLoading) {
     return (
       <main className="max-w-md mx-auto p-4 pb-24">
-        <h1 className="text-2xl font-bold mb-6 text-center">Doy-Pal</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Doy Pal</h1>
         <div className="text-center">Loading...</div>
       </main>
     );
@@ -258,7 +258,7 @@ export default function EventListPage() {
 
   return (
     <main className="max-w-md mx-auto h-screen overflow-hidden flex flex-col p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">Doy-Pal</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">Doy Pal</h1>
       <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-md mb-4 flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold">Total Points</h2>

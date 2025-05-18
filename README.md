@@ -1,8 +1,8 @@
-# Doy-Pal: Child Behavior Tracking App
+# Doy Pal: Child Behavior Tracking App
 
 ## Project Summary
 
-Doy-Pal is a mobile-first application designed to help parents track their child's behavior and assign points accordingly. The app allows for manual input of events (like "helped with meal preparation" or "brushed teeth before bed") and associates these events with points. Parents can then use these points as part of a reward system.
+Doy Pal is a mobile-first application designed to help parents track their child's behavior and assign points accordingly. The app allows for manual input of events (like "helped with meal preparation" or "brushed teeth before bed") and associates these events with points. Parents can then use these points as part of a reward system.
 
 ### Technology Stack
 

@@ -50,7 +50,7 @@ export default function RootLayout({
       >
         <ThemeProviderWrapper>
           <NetworkStatus />
-          <InstallPrompt />
+          {/* <InstallPrompt /> */}
           {children}
           <MobileNav />
         </ThemeProviderWrapper>
