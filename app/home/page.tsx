@@ -8,6 +8,108 @@ import EventHistory from "./EventHistory";
 type Event = Database["public"]["Tables"]["events"]["Row"];
 type PointSummary = Database["public"]["Views"]["point_summaries"]["Row"];
 
+// Modal Component for Editing
+const EditModal = ({
+  event,
+  isOpen,
+  onClose,
+  onSave,
+}: {
+  event: Event | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (
+    id: string,
+    updatedEvent: { description: string; points: number }
+  ) => void;
+}) => {
+  const [description, setDescription] = useState("");
+  const [points, setPoints] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (event) {
+      setDescription(event.description);
+      setPoints(event.points);
+    }
+  }, [event]);
+
+  if (!isOpen || !event) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    onSave(event.id, { description, points });
+    setIsSubmitting(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-lg shadow-xl overflow-hidden">
+        <div className="p-5">
+          <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+            Edit Event
+          </h3>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label
+                className="block text-sm font-medium mb-1"
+                htmlFor="edit-description"
+              >
+                Description
+              </label>
+              <input
+                type="text"
+                id="edit-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full p-2 border rounded-md bg-inherit text-inherit"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="mb-5">
+              <label
+                className="block text-sm font-medium mb-1"
+                htmlFor="edit-points"
+              >
+                Points
+              </label>
+              <input
+                type="number"
+                id="edit-points"
+                value={points}
+                onChange={(e) => setPoints(Number(e.target.value))}
+                min="1"
+                className="w-full p-2 border rounded-md bg-inherit text-inherit"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded-md"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className={`px-4 py-2 bg-blue-500 text-white rounded-md ${
+                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Toast component
 const Toast = ({
   message,
@@ -43,6 +145,8 @@ export default function EventListPage() {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastType, setToastType] = useState<"success" | "error">("success");
   const [isLoading, setIsLoading] = useState(true);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const showToast = (
     message: string,
@@ -95,8 +199,43 @@ export default function EventListPage() {
   };
 
   const handleEdit = (id: string) => {
-    // TODO: Implement edit functionality (e.g., open edit modal or navigate to edit page)
-    console.log("Edit event", id);
+    const eventToEdit = events.find((event) => event.id === id);
+    if (eventToEdit) {
+      setEditingEvent(eventToEdit);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleSaveEdit = async (
+    id: string,
+    updatedEvent: { description: string; points: number }
+  ) => {
+    try {
+      const response = await fetch(`/api/events/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedEvent),
+      });
+
+      if (!response.ok) throw new Error("Failed to update event");
+
+      // Close modal and refresh data
+      setIsEditModalOpen(false);
+      setEditingEvent(null);
+      await fetchEvents();
+      await fetchPointSummary();
+      showToast("Event updated successfully");
+    } catch (error) {
+      console.error("Error updating event:", error);
+      showToast("Failed to update event", "error");
+    }
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingEvent(null);
   };
 
   useEffect(() => {
@@ -142,6 +281,12 @@ export default function EventListPage() {
         +
       </Link>
       <Toast message={toastMessage} isVisible={toastVisible} type={toastType} />
+      <EditModal
+        event={editingEvent}
+        isOpen={isEditModalOpen}
+        onClose={closeEditModal}
+        onSave={handleSaveEdit}
+      />
     </main>
   );
 }
