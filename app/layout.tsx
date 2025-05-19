@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import MobileNav from "../components/MobileNav";
+import ConditionalMobileNav from "../components/ConditionalMobileNav";
 import NetworkStatus from "../components/NetworkStatus";
 import InstallPrompt from "../components/InstallPrompt";
 import ThemeProviderWrapper from "../components/ThemeProviderWrapper";
@@ -52,7 +52,7 @@ export default function RootLayout({
           <NetworkStatus />
           {/* <InstallPrompt /> */}
           {children}
-          <MobileNav />
+          <ConditionalMobileNav />
         </ThemeProviderWrapper>
       </body>
     </html>

@@ -1,0 +1,17 @@
+Environment Variables Setup Instructions
+======================================
+
+The admin API is failing because of missing environment variables. 
+Please update your .env.local file to include these variables:
+
+SUPABASE_URL=https://rwierjoauxrzhsyaajeo.supabase.co
+SUPABASE_SECRET_KEY=your-supabase-secret-key-here
+
+Replace "your-supabase-secret-key-here" with your actual Supabase secret key.
+
+After updating the .env.local file, restart the development server with:
+npm run dev
+
+Notes:
+- These variables are used server-side only in API routes
+- Using SUPABASE_URL and SUPABASE_SECRET_KEY is correct since they aren't exposed to the client 

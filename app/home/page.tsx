@@ -329,7 +329,9 @@ export default function EventListPage() {
 
   return (
     <main className="max-w-md mx-auto h-screen overflow-hidden flex flex-col p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">Doy Pal</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-center">Doy Pal</h1>
+      </div>
       <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-md mb-4 flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold">Total Points</h2>
