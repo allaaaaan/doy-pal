@@ -8,7 +8,7 @@ const supabaseKey = process.env.SUPABASE_SECRET_KEY || "";
 
 // OpenAI API info
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const MODEL = "text-embedding-3-small";
+const MODEL = "text-embedding-3-large";
 const API_URL = "https://api.openai.com/v1/embeddings";
 
 export async function POST(request: NextRequest) {
