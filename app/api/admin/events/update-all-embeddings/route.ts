@@ -1,15 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "../../../types/database.types";
+import { translateAndGenerateEmbedding } from "@/app/utils/embeddings";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SECRET_KEY || "";
-
-// OpenAI API info
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const MODEL = "text-embedding-3-large";
-const API_URL = "https://api.openai.com/v1/embeddings";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,17 +14,13 @@ export async function POST(request: NextRequest) {
       throw new Error("Supabase environment variables are missing");
     }
 
-    if (!OPENAI_API_KEY) {
-      throw new Error("OpenAI API key is missing");
-    }
-
     const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-    // Get all events that don't have embeddings yet
+    // Get all events that need processing - either no embedding or no normalized description
     const { data: events, error: fetchError } = await supabase
       .from("events")
       .select("id, description")
-      .is("description_embedding", null)
+      .or("description_embedding.is.null, normalized_description.is.null")
       .order("created_at", { ascending: false });
 
     if (fetchError) throw fetchError;
@@ -40,10 +32,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log(`Found ${events.length} events that need embeddings`);
+    console.log(`Found ${events.length} events that need processing`);
 
     // Process events in batches to avoid rate limits
-    const batchSize = 5;
+    const batchSize = 3; // Smaller batch size due to more API calls per event
     const results = [];
 
     for (let i = 0; i < events.length; i += batchSize) {
@@ -59,51 +51,41 @@ export async function POST(request: NextRequest) {
         if (!event.description) return null;
 
         try {
-          // Generate embedding
           console.log(
-            `Requesting embedding for event ${event.id}:`,
-            event.description
+            `Processing event ${
+              event.id
+            }, description: "${event.description.substring(0, 50)}..."`
           );
-          const embeddingResponse = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${OPENAI_API_KEY}`,
-            },
-            body: JSON.stringify({
-              model: MODEL,
-              input: event.description,
-            }),
-          });
+
+          // Generate translation and embedding
+          const result = await translateAndGenerateEmbedding(event.description);
 
           console.log(
-            `OpenAI response status for event ${event.id}:`,
-            embeddingResponse.status
+            `Event ${
+              event.id
+            } processed: Original: "${event.description.substring(
+              0,
+              30
+            )}...", ` +
+              `Translated: "${result.translatedText.substring(0, 30)}...", ` +
+              `Embedding dimensions: ${result.embedding.length}`
           );
-          let embeddingData = null;
-          if (!embeddingResponse.ok) {
-            const errorData = await embeddingResponse.json();
-            console.error(`OpenAI API error for event ${event.id}:`, errorData);
-            throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
-          } else {
-            embeddingData = await embeddingResponse.json();
-            console.log(
-              `Embedding generated for event ${event.id}, dimensions: ${embeddingData.data[0].embedding.length}`
-            );
-          }
 
-          const embedding = embeddingData.data[0].embedding;
-
-          // Update event with embedding
+          // Update event with normalized description and embedding
           const { data, error } = await supabase
             .from("events")
-            .update({ description_embedding: embedding })
+            .update({
+              normalized_description: result.translatedText,
+              description_embedding: result.embedding,
+            })
             .eq("id", event.id)
             .select("id")
             .single();
 
           if (error) throw error;
-          console.log(`Successfully updated embedding for event ${event.id}`);
+          console.log(
+            `Successfully updated event ${event.id} with normalized description and embedding`
+          );
 
           return data;
         } catch (error) {
@@ -115,10 +97,10 @@ export async function POST(request: NextRequest) {
       const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults.filter((r) => r !== null));
 
-      // Add a small delay between batches to avoid rate limits
+      // Add a delay between batches to avoid rate limits
       if (i + batchSize < events.length) {
         console.log(`Waiting before processing next batch...`);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Longer delay due to multiple API calls
       }
     }
 
@@ -127,12 +109,15 @@ export async function POST(request: NextRequest) {
     );
 
     return NextResponse.json({
-      message: "Events updated with embeddings successfully",
+      message: "Events updated with translations and embeddings successfully",
       updated: results.length,
       total: events.length,
     });
   } catch (error) {
-    console.error("Error updating events with embeddings:", error);
+    console.error(
+      "Error updating events with translations and embeddings:",
+      error
+    );
     return NextResponse.json(
       {
         error:

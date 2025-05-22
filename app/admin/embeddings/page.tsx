@@ -6,6 +6,7 @@ import Link from "next/link";
 interface SimilarEvent {
   id: string;
   description: string;
+  normalized_description: string | null;
   points: number;
   timestamp: string;
   day_of_week: string;
@@ -21,9 +22,8 @@ interface Category {
 
 export default function EmbeddingsAdminPage() {
   const [text, setText] = useState("");
-  const [embedding, setEmbedding] = useState<number[] | null>(null);
-  const [dimensions, setDimensions] = useState<number | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [originalQuery, setOriginalQuery] = useState("");
+  const [translatedQuery, setTranslatedQuery] = useState("");
   const [similarityThreshold, setSimilarityThreshold] = useState(0.7);
   const [similarEvents, setSimilarEvents] = useState<SimilarEvent[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -36,40 +36,6 @@ export default function EmbeddingsAdminPage() {
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const generateEmbedding = async () => {
-    if (!text.trim()) {
-      setError("Please enter some text");
-      return;
-    }
-
-    setError(null);
-    setIsGenerating(true);
-
-    try {
-      const response = await fetch("/api/embeddings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: text.trim() }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate embedding");
-      }
-
-      const data = await response.json();
-      setEmbedding(data.embedding);
-      setDimensions(data.dimensions);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      console.error("Error generating embedding:", err);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   const findSimilarEvents = async () => {
     if (!text.trim()) {
       setError("Please enter some text");
@@ -78,6 +44,8 @@ export default function EmbeddingsAdminPage() {
 
     setError(null);
     setSimilarEvents([]);
+    setOriginalQuery("");
+    setTranslatedQuery("");
     setIsSearching(true);
 
     try {
@@ -100,6 +68,8 @@ export default function EmbeddingsAdminPage() {
 
       const data = await response.json();
       setSimilarEvents(data.similarEvents);
+      setOriginalQuery(data.query.original);
+      setTranslatedQuery(data.query.translated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error finding similar events:", err);
@@ -190,62 +160,22 @@ export default function EmbeddingsAdminPage() {
         )}
 
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">
-            Test Embedding Generation
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">Find Similar Events</h2>
+
           <div className="mb-4">
-            <label htmlFor="text" className="block text-sm font-medium mb-2">
-              Enter Text
+            <label htmlFor="query" className="block text-sm font-medium mb-2">
+              Enter text to search (any language)
             </label>
             <textarea
-              id="text"
+              id="query"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="w-full p-2 border rounded-md bg-inherit text-inherit"
               rows={3}
-              placeholder="Enter text to generate an embedding (e.g., event description)"
-              disabled={isGenerating}
-            />
+              className="w-full border rounded-md p-2 dark:bg-gray-700 dark:border-gray-600"
+              placeholder="Enter event description to find similar events"
+            ></textarea>
           </div>
 
-          <div className="flex justify-between items-center">
-            <button
-              onClick={generateEmbedding}
-              disabled={isGenerating || !text.trim()}
-              className={`px-4 py-2 rounded-md ${
-                isGenerating
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600 text-white"
-              }`}
-            >
-              {isGenerating ? "Generating..." : "Generate Embedding"}
-            </button>
-
-            {dimensions && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Dimensions: {dimensions}
-              </span>
-            )}
-          </div>
-
-          {embedding && (
-            <div className="mt-6">
-              <h3 className="text-md font-semibold mb-2">
-                Generated Embedding
-              </h3>
-              <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-md text-xs font-mono overflow-auto max-h-32">
-                [{embedding.slice(0, 10).join(", ")}
-                {embedding.length > 10 ? ", ..." : ""}]
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                Showing first 10 of {embedding.length} dimensions
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Find Similar Events</h2>
           <div className="mb-4">
             <label
               htmlFor="threshold"
@@ -297,6 +227,17 @@ export default function EmbeddingsAdminPage() {
             </button>
           </div>
 
+          {translatedQuery && originalQuery !== translatedQuery && (
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                Translation:
+              </p>
+              <p className="text-sm text-gray-800 dark:text-gray-200">
+                {translatedQuery}
+              </p>
+            </div>
+          )}
+
           {similarEvents.length > 0 && (
             <div className="mt-4">
               <h3 className="text-lg font-semibold mb-3">Similar Events</h3>
@@ -309,6 +250,12 @@ export default function EmbeddingsAdminPage() {
                         className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         Description
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Normalized
                       </th>
                       <th
                         scope="col"
@@ -344,6 +291,18 @@ export default function EmbeddingsAdminPage() {
                       >
                         <td className="px-3 py-2 whitespace-nowrap text-sm">
                           {event.description}
+                        </td>
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {event.normalized_description &&
+                          event.normalized_description !== event.description ? (
+                            <span className="italic">
+                              {event.normalized_description}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-600">
+                              -
+                            </span>
+                          )}
                         </td>
                         <td className="px-3 py-2 whitespace-nowrap text-sm">
                           {event.points}
@@ -429,9 +388,17 @@ export default function EmbeddingsAdminPage() {
             Batch Process All Events
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            This will generate and store embeddings for all events that don't
-            have embeddings yet. This operation may take some time depending on
-            the number of events.
+            This will process all events that need updating:
+          </p>
+          <ul className="list-disc ml-5 text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <li>
+              Translate descriptions to English (if not already in English)
+            </li>
+            <li>Generate embeddings from the English text</li>
+            <li>Store both translations and embeddings in the database</li>
+          </ul>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            This operation may take some time depending on the number of events.
           </p>
 
           <button
@@ -443,9 +410,7 @@ export default function EmbeddingsAdminPage() {
                 : "bg-green-500 hover:bg-green-600 text-white"
             }`}
           >
-            {batchProcessing
-              ? "Processing..."
-              : "Update All Missing Embeddings"}
+            {batchProcessing ? "Processing..." : "Process Events"}
           </button>
 
           {batchResult && (
@@ -453,7 +418,7 @@ export default function EmbeddingsAdminPage() {
               <p className="font-semibold">Batch Processing Complete</p>
               <p>
                 Updated {batchResult.updated} of {batchResult.total} events with
-                embeddings.
+                translations and embeddings.
               </p>
             </div>
           )}

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "../../../types/database.types";
+import { translateAndGenerateEmbedding } from "@/app/utils/embeddings";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL || "";
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
       console.error("Failed to parse request body", err);
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
+
     // Lower default threshold for better cross-language matching
     const { text, threshold = 0.6, limit = 10 } = body;
 
@@ -47,33 +49,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Text is required" }, { status: 400 });
     }
 
-    // Generate embedding for the search text
-    console.log("Requesting embedding from OpenAI API", { text });
-    const embeddingResponse = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        input: text,
-      }),
+    // Translate the input text to English and generate embedding
+    console.log("Processing query text for similarity search:", text);
+    const { translatedText, embedding } = await translateAndGenerateEmbedding(
+      text
+    );
+
+    console.log("Text processed:", {
+      original: text,
+      translated: translatedText,
+      embeddingDimensions: embedding.length,
     });
-
-    if (!embeddingResponse.ok) {
-      const errorData = await embeddingResponse.json();
-      console.error("OpenAI API error response:", errorData);
-      throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
-    }
-
-    const embeddingData = await embeddingResponse.json();
-    console.log("Received embedding data from OpenAI:", embeddingData);
-    const embedding = embeddingData.data[0].embedding;
 
     // Query for similar events using the Postgres function
     console.log("Querying Supabase RPC 'find_similar_events'", {
-      embedding,
       threshold,
       limit,
     });
@@ -93,7 +82,10 @@ export async function POST(request: NextRequest) {
 
     console.log("Similar events found:", similarEvents);
     return NextResponse.json({
-      query: text,
+      query: {
+        original: text,
+        translated: translatedText,
+      },
       similarEvents: similarEvents || [],
     });
   } catch (error) {
