@@ -1,17 +1,17 @@
 # Doy-Pal Documentation Index
 
-Welcome to the complete documentation for Doy-Pal, a mobile-first child behavior tracking application with advanced AI capabilities.
+Welcome to the complete documentation for Doy-Pal, an AI-enhanced mobile-first child behavior tracking application with intelligent templates and modern UI design.
 
 ## 📖 Documentation Structure
 
 ### Getting Started
 
 - **[Setup Guide](./setup.md)** - Complete installation and configuration instructions
-- **[Main README](./README.md)** - Project overview and current features
+- **[Main README](../README.md)** - Project overview and latest features
 
 ### Technical Documentation
 
-- **[Database Schema](./database-schema.md)** - Complete database structure and AI enhancements
+- **[Database Schema](./database-schema.md)** - Complete database structure with AI enhancements
 - **[AI Features](./ai-features.md)** - Detailed AI capabilities and embedding system
 
 ### API Documentation
@@ -19,9 +19,14 @@ Welcome to the complete documentation for Doy-Pal, a mobile-first child behavior
 - **[Event Management APIs](./api-events.md)** - Core CRUD operations for events
 - **[Admin APIs](./api-admin.md)** - Advanced AI-powered administrative features
 
+### Implementation Guides
+
+- **[AI Template System](./ai-template-implementation-summary.md)** - Template system implementation details
+- **[Template Linking Guide](./events-templates-linking-guide.md)** - Events-templates relationship
+
 ## 🚀 Quick Start
 
-1. **New to the project?** Start with the [Main README](./README.md)
+1. **New to the project?** Start with the [Main README](../README.md)
 2. **Setting up development?** Follow the [Setup Guide](./setup.md)
 3. **Integrating APIs?** Check [Event Management APIs](./api-events.md) and [Admin APIs](./api-admin.md)
 4. **Understanding the AI features?** Read [AI Features](./ai-features.md)
@@ -29,14 +34,15 @@ Welcome to the complete documentation for Doy-Pal, a mobile-first child behavior
 
 ## 🧩 Core Features Covered
 
-### Basic Functionality
+### Smart Template System ✨
 
-- Event creation, editing, and deletion
-- Point-based reward system
-- Time-based analytics and summaries
-- Mobile-first responsive design
+- **Template Selection**: Intelligent dropdown with fuzzy search
+- **Auto-fill Functionality**: Pre-populate event forms with template data
+- **Usage Tracking**: Frequency-based template popularity
+- **Manual Entry**: Always available "Create Manually" option
+- **Template Management**: CRUD operations with admin APIs
 
-### AI-Powered Features ✨
+### AI-Powered Features 🤖
 
 - **Multilingual Support**: Automatic translation to English
 - **Semantic Search**: Find similar events using AI embeddings
@@ -44,120 +50,186 @@ Welcome to the complete documentation for Doy-Pal, a mobile-first child behavior
 - **Cross-Language Matching**: Compare events regardless of input language
 - **Batch Processing**: Efficient bulk operations with rate limiting
 
+### Modern Mobile UI 📱
+
+- **Card-Based Design**: Modern rounded corners and shadows
+- **Touch Optimization**: Proper spacing for mobile interaction
+- **Safe Area Support**: Compatible with devices with notches
+- **Native Controls**: Custom-styled date/time pickers
+- **Responsive Layout**: Mobile-first with tablet/desktop support
+- **Dark Mode**: Full theme support with system detection
+
+### Enhanced Event Management 🏆
+
+- **Event Names**: Optional field with auto-generation from description
+- **Template Integration**: Events link to templates for tracking
+- **Point System**: 1-100 point range with visual indicators
+- **Swipe Gestures**: Mobile-friendly event interactions
+- **Rich Editing**: Comprehensive edit capabilities with validation
+
 ### Technical Highlights
 
-- Next.js 15.3.2 with React 19
-- PostgreSQL with pgvector for similarity search
-- OpenAI integration for embeddings and translation
-- Supabase backend with real-time capabilities
-- TypeScript for type safety
+- **Next.js 15.3.2** with React 19 and App Router
+- **PostgreSQL** with pgvector for similarity search
+- **OpenAI Integration** for embeddings and translation
+- **Supabase Backend** with real-time capabilities
+- **TypeScript** for type safety and better DX
+- **Heroicons** for consistent iconography
+- **PWA Support** with offline capabilities
 
 ## 📊 API Endpoints Overview
 
 ### Event Management (`/api/events/`)
 
-- `GET /api/events` - List all events
-- `POST /api/events` - Create new event
-- `GET /api/events/[id]` - Get specific event
-- `PATCH /api/events/[id]` - Update event
+- `GET /api/events` - List all events with template information
+- `POST /api/events` - Create new event with AI processing
+- `GET /api/events/[id]` - Get specific event details
+- `PATCH /api/events/[id]` - Update event with AI re-processing
 - `DELETE /api/events/[id]` - Soft delete event
-- `GET /api/points` - Get points summary
+- `GET /api/points` - Get comprehensive points summary
 
-### Admin Features (`/api/admin/events/`)
+### Template Management (`/api/templates/`)
 
-- `POST /api/admin/events/similar` - Find similar events
-- `POST /api/admin/events/update-all-embeddings` - Batch generate embeddings
-- `GET /api/admin/events/categories` - Auto-categorize events
+- `GET /api/templates` - List all active templates
+- `POST /api/templates` - Create new template
+- `GET /api/templates/[id]` - Get specific template
+- `PATCH /api/templates/[id]` - Update template
+- `DELETE /api/templates/[id]` - Deactivate template
+
+### Admin Features (`/api/admin/`)
+
+- `POST /api/admin/events/similar` - Find similar events with thresholds
+- `POST /api/admin/events/embedding` - Generate embeddings for events
+- `POST /api/admin/events/update-all-embeddings` - Batch process embeddings
+- `GET /api/admin/events/categories` - Auto-categorize events by behavior
 
 ## 🔧 Recent Major Updates
 
-### AI Enhancement Pipeline
+### v2.0.0 - AI-Enhanced Experience
 
-The application has been significantly enhanced with AI capabilities:
+The application has been significantly enhanced with modern features:
 
-1. **Translation System**: All events are automatically translated to English for consistent processing
-2. **Vector Embeddings**: Using OpenAI's `text-embedding-3-large` model for semantic understanding
-3. **Similarity Search**: Real-time similarity matching with configurable thresholds
-4. **Batch Processing**: Efficient bulk embedding generation with proper rate limiting
-5. **Cross-Language Support**: Events in any language can be compared and categorized
+1. **Smart Template System**: Searchable template selector with auto-fill functionality
+2. **AI Integration**: OpenAI-powered translation and embedding generation
+3. **Modern UI Design**: Card-based layout with mobile optimizations
+4. **Enhanced Events**: Added name field with auto-generation capabilities
+5. **Mobile Improvements**: Safe area support and touch-optimized controls
+6. **Performance**: Optimized for modern devices with PWA capabilities
+
+### UI/UX Enhancements
+
+- **Mobile-First Redesign**: Completely rebuilt for touch devices
+- **Visual Hierarchy**: Gradient headers and modern spacing
+- **Interactive Elements**: Swipe gestures and haptic feedback
+- **Accessibility**: Improved contrast ratios and keyboard navigation
+- **Loading States**: Skeleton screens and progress indicators
 
 ### Database Enhancements
 
-- Added `normalized_description` column for English translations
-- Added `description_embedding` vector column (1536 dimensions)
-- Implemented vector similarity indexes for fast searches
-- Created PostgreSQL functions for similarity operations
+- **Template Schema**: New templates table with usage tracking
+- **AI Fields**: Added `normalized_description` and `description_embedding`
+- **Event Names**: Optional `name` field with auto-generation
+- **Template Links**: `template_id` references for tracking usage
+- **Vector Search**: pgvector indexes for similarity operations
 
 ### API Improvements
 
-- New admin endpoints for AI features
-- Enhanced error handling and logging
-- Configurable similarity thresholds
-- Comprehensive batch processing capabilities
+- **Enhanced Endpoints**: All CRUD operations support new fields
+- **AI Processing**: Automatic translation and embedding on create/update
+- **Template Integration**: Template usage tracking and frequency updates
+- **Error Handling**: Comprehensive error responses with helpful messages
+- **Performance**: Optimized queries with proper indexing
 
 ## 🛠️ Development Workflow
 
-### For Developers
+### For Frontend Developers
 
-1. Set up development environment using [Setup Guide](./setup.md)
-2. Understand the database structure from [Database Schema](./database-schema.md)
-3. Implement features using [Event APIs](./api-events.md)
-4. Integrate AI features using [Admin APIs](./api-admin.md)
+1. **UI Components**: Check `/components/` for reusable elements
+2. **Page Structure**: App Router pages in `/app/` directory
+3. **Styling**: Tailwind CSS with custom mobile optimizations
+4. **State Management**: React hooks with local state patterns
+
+### For Backend Developers
+
+1. **API Routes**: Next.js API routes in `/app/api/` directory
+2. **Database**: Supabase with PostgreSQL and vector extensions
+3. **AI Integration**: OpenAI utilities in `/app/utils/` directory
+4. **Migrations**: Database changes in `/supabase/migrations/`
 
 ### For Administrators
 
-1. Use admin APIs to manage embeddings and categorization
-2. Monitor AI processing costs and performance
-3. Configure similarity thresholds based on use cases
-4. Manage bulk operations during off-peak hours
+1. **Template Management**: Use admin APIs for bulk operations
+2. **AI Processing**: Monitor embedding generation and costs
+3. **Performance**: Configure similarity thresholds and batch sizes
+4. **Analytics**: Track template usage and user behavior patterns
 
 ## 📈 Usage Patterns
 
 ### Basic Event Tracking
 
-- Parents input behavioral events with point values
-- System automatically tracks time-based metadata
-- Points are aggregated for weekly/monthly summaries
+- **Template Selection**: Choose from popular behavior templates
+- **Manual Entry**: Create custom events when templates don't fit
+- **AI Processing**: Automatic translation and similarity detection
+- **Point Tracking**: Accumulate points with visual progress indicators
 
-### AI-Enhanced Workflow
+### Advanced Features
 
-- Events are automatically translated and embedded
-- Similar events are detected to prevent duplicates
-- Events are automatically categorized by behavior type
-- Cross-language matching enables global usability
+- **Cross-Language Support**: Events work regardless of input language
+- **Similar Event Detection**: Prevent duplicates with AI matching
+- **Template Analytics**: Track which templates are most popular
+- **Batch Operations**: Process multiple events efficiently
 
 ## 🔍 Search and Discovery
 
 ### Finding Information
 
-- **Setup Issues**: [Setup Guide](./setup.md) troubleshooting section
-- **API Usage**: Examples in [Event APIs](./api-events.md) and [Admin APIs](./api-admin.md)
-- **Database Questions**: [Database Schema](./database-schema.md) with full structure
-- **AI Features**: [AI Features](./ai-features.md) with detailed explanations
+- **Setup Issues**: [Setup Guide](./setup.md) with troubleshooting
+- **API Integration**: [Event APIs](./api-events.md) and [Admin APIs](./api-admin.md)
+- **Database Schema**: [Database Documentation](./database-schema.md)
+- **AI Features**: [AI Features Guide](./ai-features.md)
+- **Template System**: [AI Template Implementation](./ai-template-implementation-summary.md)
 
 ### Code Examples
 
 Each documentation file includes:
 
-- Complete API request/response examples
-- JavaScript/TypeScript code snippets
-- Error handling patterns
-- Integration examples with React
+- **Complete Examples**: Full API request/response samples
+- **Code Snippets**: TypeScript/React integration patterns
+- **Error Handling**: Best practices for error management
+- **Performance Tips**: Optimization suggestions and patterns
 
 ## 📚 Additional Resources
 
 ### External Documentation
 
-- [Next.js Documentation](https://nextjs.org/docs)
+- [Next.js 15 Documentation](https://nextjs.org/docs)
 - [Supabase Documentation](https://supabase.com/docs)
-- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [OpenAI API Reference](https://platform.openai.com/docs)
 - [pgvector Documentation](https://github.com/pgvector/pgvector)
 
 ### Related Technologies
 
-- [Tailwind CSS](https://tailwindcss.com/docs) for styling
+- [Tailwind CSS 4](https://tailwindcss.com/docs) for styling
 - [TypeScript](https://www.typescriptlang.org/docs/) for type safety
 - [React 19](https://react.dev/) for UI components
+- [Heroicons](https://heroicons.com/) for iconography
+
+## 🎯 Key Components
+
+### Core UI Components
+
+- **`TemplateSelector`**: Smart template chooser with search
+- **`EventItem`**: Swipeable event display with actions
+- **`FloatingActionButton`**: Quick access to event creation
+- **`TemplateQuickTip`**: Onboarding for new users
+- **`EventHistory`**: Timeline display with template indicators
+
+### Utility Functions
+
+- **`translateAndGenerateEmbedding`**: AI processing pipeline
+- **Template Search**: Fuzzy matching for template selection
+- **Date Formatting**: Consistent timestamp handling
+- **Safe Area Handling**: Mobile device compatibility
 
 ---
 
@@ -165,12 +237,12 @@ Each documentation file includes:
 
 This documentation is maintained alongside the codebase. When adding new features:
 
-1. Update relevant API documentation
-2. Add code examples and usage patterns
-3. Update the database schema if needed
-4. Include troubleshooting information
-5. Update this index if new documentation files are added
+1. **Update API Documentation**: Add new endpoints and examples
+2. **Update Database Schema**: Document any schema changes
+3. **Add Usage Examples**: Include practical implementation examples
+4. **Update Component Docs**: Document new UI components and patterns
+5. **Test Examples**: Ensure all code examples work correctly
 
 ---
 
-_Last updated: January 2024 - Reflects the latest AI enhancements and embedding system implementation._
+_Last updated: January 2025 - Reflects the latest v2.0.0 release with template system, AI enhancements, and modern mobile UI._

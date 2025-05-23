@@ -1,166 +1,367 @@
-# Doy Pal: Child Behavior Tracking App
+# Doy Pal: AI-Enhanced Child Behavior Tracking App
 
 ## Project Summary
 
-Doy Pal is a mobile-first application designed to help parents track their child's behavior and assign points accordingly. The app allows for manual input of events (like "helped with meal preparation" or "brushed teeth before bed") and associates these events with points. Parents can then use these points as part of a reward system.
+Doy Pal is a modern, mobile-first application designed to help parents track their child's behavior with an AI-enhanced experience. The app features intelligent template suggestions, automatic translation, semantic analysis, and a beautiful, intuitive interface optimized for mobile devices.
 
 ### Technology Stack
 
 - **Frontend**: Next.js 15.3.2 with React 19
-- **Styling**: Tailwind CSS 4
-- **Database**: Supabase (planned integration)
+- **Styling**: Tailwind CSS 4 with custom mobile optimizations
+- **Database**: Supabase with PostgreSQL and pgvector for AI features
+- **AI Integration**: OpenAI API for translation and embeddings
 - **Language**: TypeScript
 - **UI/UX**: Mobile-first responsive design with dark mode support
+- **Icons**: Heroicons for consistent iconography
+- **PWA**: Progressive Web App capabilities
 
-### MVP Features
+## ✨ Key Features
 
-1. **Manual Event Input**
+### 🎯 **Smart Template System**
 
-   - Free-text description of behavior/event
-   - Point value assignment
-   - Date and time are automatically recorded
+- **Pre-defined templates** for common child behaviors
+- **Intelligent search** with fuzzy matching
+- **Auto-fill functionality** for quick event creation
+- **Usage tracking** to suggest popular templates
+- **Manual entry option** always available
 
-2. **Event List View**
+### 🤖 **AI-Powered Event Processing**
 
-   - Chronological display of all events
-   - Each entry shows event description, points, and timestamp
-   - Metadata includes date, time, day of week, day of month
+- **Automatic translation** to English for consistency
+- **Semantic embeddings** using OpenAI's text-embedding-3-large
+- **Cross-language event matching** and similarity detection
+- **Intelligent categorization** and analysis
+- **Multilingual support** with seamless experience
 
-3. **Edit & Delete Events**
+### 📱 **Modern Mobile-First UI**
 
-   - Ability to modify event descriptions and point values
-   - Option to delete events
+- **Card-based design** with rounded corners and shadows
+- **Floating action button** for quick access
+- **Touch-optimized controls** with proper spacing
+- **Safe area support** for devices with notches
+- **Native date/time pickers** with custom icons
+- **Gradient headers** and modern visual hierarchy
 
-4. **Points Summary**
+### 🏆 **Comprehensive Event Management**
 
-   - Display of total points accumulated
-   - Weekly and monthly point breakdowns
+- **Event name field** (optional, auto-generates from description)
+- **Rich descriptions** with multi-line support
+- **Point-based rewards** system (1-100 points)
+- **Automatic timestamp** tracking
+- **Edit and delete** capabilities with confirmation
+- **Swipe gestures** for mobile interaction
 
-5. **User Feedback**
+### 📊 **Analytics & Insights**
 
-   - Toast messages to confirm actions (add, edit, delete)
+- **Total points** tracking with visual summaries
+- **Event history** with template indicators
+- **Weekly and monthly** breakdowns
+- **Template usage** analytics
+- **Achievement tracking**
 
-6. **Data Storage**
-   - Supabase integration for data persistence
+## 🗄️ Database Schema
 
-### Database Schema (Supabase)
+### **events**
 
-The application uses a simple database schema:
+```sql
+- id (uuid, primary key)
+- name (text, optional) - Event title/name
+- description (text) - Detailed event description
+- points (integer) - Points awarded (1-100)
+- timestamp (timestamptz) - When the event occurred
+- day_of_week (text) - Day of week for easy filtering
+- day_of_month (integer) - Day of month for analytics
+- created_at (timestamptz) - Record creation
+- updated_at (timestamptz) - Last modification
+- is_active (boolean) - Soft delete flag
+- normalized_description (text) - AI-translated English version
+- description_embedding (vector) - AI embedding for similarity
+- template_id (uuid) - Reference to template used (optional)
+```
 
-1. **events**
+### **templates**
 
-   - `id` (uuid, primary key)
-   - `description` (text) - Event description
-   - `points` (integer) - Points awarded
-   - `timestamp` (timestamp) - When the event occurred
-   - `day_of_week` (text) - Day of week (for easier querying/filtering)
-   - `day_of_month` (integer) - Day of month (for easier querying/filtering)
-   - `created_at` (timestamp) - Record creation timestamp
-   - `updated_at` (timestamp) - Last update timestamp
+```sql
+- id (uuid, primary key)
+- name (text) - Template name/title
+- description (text) - Template description
+- default_points (integer) - Suggested point value
+- frequency (integer) - Usage count for popularity
+- ai_confidence (float) - AI matching confidence
+- last_seen (timestamptz) - Last usage timestamp
+- is_active (boolean) - Active status
+- created_at (timestamptz) - Creation timestamp
+- updated_at (timestamptz) - Last modification
+```
 
-2. **point_summaries** (view)
-   - `total_points` (integer) - Sum of all points
-   - `weekly_points` (integer) - Points in current week
-   - `monthly_points` (integer) - Points in current month
+### **point_summaries** (view)
 
-### Future Considerations
+```sql
+- total_points (integer) - Sum of all points
+- weekly_points (integer) - Current week total
+- monthly_points (integer) - Current month total
+```
 
-- Analytics and insights based on collected metadata
-- Preset event templates
-- Rewards management and redemption
-- Goal setting and achievement tracking
-- Multi-language support
+## 🚀 Getting Started
 
-## Getting Started
+### Prerequisites
 
-First, install dependencies:
+- Node.js 18+
+- npm or yarn
+- Supabase account
+- OpenAI API key
+
+### Installation
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/your-repo/doy-pal.git
+cd doy-pal
+```
+
+2. **Install dependencies**
 
 ```bash
 npm install
 ```
 
-Then, run the development server:
+3. **Set up environment variables**
+
+```bash
+cp .env.example .env.local
+```
+
+Add your environment variables:
+
+```env
+SUPABASE_URL=your-supabase-project-url
+SUPABASE_SECRET_KEY=your-supabase-secret-key
+OPENAI_API_KEY=your-openai-api-key
+```
+
+4. **Run database migrations**
+
+```sql
+-- Run the SQL files in supabase/migrations/ in order
+-- This sets up the database schema with AI capabilities
+```
+
+5. **Start development server**
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-## Supabase Setup
+## 🔌 API Endpoints
 
-To integrate with Supabase:
+### **Event Management**
 
-1. Create a Supabase project at [https://supabase.com](https://supabase.com)
-2. Set up the database tables as per the schema above
-3. Add the Supabase URL and secret key to your environment variables:
+- `GET /api/events` - List all events with template info
+- `POST /api/events` - Create event with AI processing
+- `GET /api/events/[id]` - Get specific event
+- `PATCH /api/events/[id]` - Update event with AI re-processing
+- `DELETE /api/events/[id]` - Soft delete event
+
+### **Templates**
+
+- `GET /api/templates` - List all active templates
+- `POST /api/templates` - Create new template
+- `GET /api/templates/[id]` - Get specific template
+- `PATCH /api/templates/[id]` - Update template
+- `DELETE /api/templates/[id]` - Deactivate template
+
+### **Analytics**
+
+- `GET /api/points` - Get points summary
+- `GET /api/schema` - Get database schema info
+
+### **Admin Features**
+
+- `POST /api/admin/events/similar` - Find similar events
+- `POST /api/admin/events/embedding` - Generate embeddings
+- `POST /api/admin/events/update-all-embeddings` - Batch process
+- `GET /api/admin/events/categories` - Auto-categorize events
+
+## 🎨 User Experience Features
+
+### **Mobile Optimizations**
+
+- **Safe area insets** for modern devices
+- **Touch-friendly** button sizes and spacing
+- **Swipe gestures** for event actions
+- **Native input controls** with custom styling
+- **Haptic feedback** support (where available)
+
+### **Dark Mode Support**
+
+- **System preference** detection
+- **Manual toggle** capability
+- **Consistent theming** across all components
+- **Proper contrast** ratios for accessibility
+
+### **Progressive Web App**
+
+- **Installable** on mobile devices
+- **Offline capabilities** with service worker
+- **App-like experience** with native feel
+- **Background sync** for seamless updates
+
+## 🧠 AI Features Deep Dive
+
+### **Translation Pipeline**
+
+```typescript
+// Automatic translation for consistency
+const aiResult = await translateAndGenerateEmbedding(description);
+// Stores: normalized_description, description_embedding
+```
+
+### **Similarity Detection**
+
+```typescript
+// Find similar events across languages
+const similar = await findSimilarEvents(eventId, threshold: 0.8);
+// Returns events with similarity scores
+```
+
+### **Template Intelligence**
+
+- **Smart suggestions** based on partial input
+- **Usage frequency** tracking for popularity
+- **AI confidence** scoring for matches
+- **Cross-language** template matching
+
+## 🔧 Development
+
+### **Project Structure**
 
 ```
-SUPABASE_URL=your-project-url
-SUPABASE_SECRET_KEY=your-secret-key
+doy-pal/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── event/             # Event creation page
+│   ├── home/              # Main dashboard
+│   └── utils/             # Utilities (embeddings, etc.)
+├── components/            # Reusable UI components
+├── docs/                  # Documentation
+├── public/                # Static assets
+├── supabase/             # Database migrations
+└── scripts/              # Utility scripts
 ```
 
-## API Routes
+### **Key Components**
 
-The application provides the following API endpoints:
+- **TemplateSelector** - Smart template chooser with search
+- **EventItem** - Swipeable event display with actions
+- **FloatingActionButton** - Quick access to event creation
+- **TemplateQuickTip** - Onboarding for new users
 
-- **GET /api/events** - Get all events
-- **POST /api/events** - Create a new event
-- **GET /api/events/[id]** - Get a specific event
-- **PATCH /api/events/[id]** - Update an event
-- **DELETE /api/events/[id]** - Delete an event
-- **GET /api/points** - Get point summaries
-
-## Mobile-First Design Considerations
-
-This application is built with a mobile-first approach:
-
-- Responsive UI components that work well on small screens
-- Touch-friendly interface elements
-- Efficient data loading for mobile networks
-- Dark mode support for better readability
-
-## Learn More
-
-To learn more about the technologies used in this project:
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
+### **Build & Deploy**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📚 Documentation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+For detailed documentation, visit the [docs](./docs/) directory:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **[Setup Guide](./docs/setup.md)** - Complete setup instructions
+- **[API Documentation](./docs/api-events.md)** - Detailed API reference
+- **[AI Features](./docs/ai-features.md)** - AI capabilities guide
+- **[Database Schema](./docs/database-schema.md)** - Complete schema reference
 
-## Learn More
+## 🛠️ Recent Updates
 
-To learn more about Next.js, take a look at the following resources:
+### v2.0.0 - AI-Enhanced Experience
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- ✅ Smart template system with search
+- ✅ OpenAI integration for translation and embeddings
+- ✅ Modern mobile-first UI redesign
+- ✅ Event name field with auto-generation
+- ✅ Improved mobile layout with safe areas
+- ✅ Cross-language event matching
+- ✅ Heroicons integration for consistency
+- ✅ Enhanced error handling and user feedback
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### UI/UX Improvements
 
-## Deploy on Vercel
+- ✅ Card-based design with modern shadows
+- ✅ Gradient headers and visual hierarchy
+- ✅ Touch-optimized controls and spacing
+- ✅ Native date/time pickers with custom icons
+- ✅ Swipe gestures for mobile interaction
+- ✅ Loading states and skeleton animations
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Technical Enhancements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- ✅ TypeScript strict mode compliance
+- ✅ Next.js 15 App Router optimization
+- ✅ PWA capabilities with offline support
+- ✅ Vector similarity search with pgvector
+- ✅ Comprehensive error boundaries
+- ✅ Performance optimizations
+
+## 🚀 Deployment
+
+### **Vercel (Recommended)**
+
+```bash
+npm install -g vercel
+vercel
+```
+
+### **Environment Setup**
+
+Ensure all environment variables are configured:
+
+- `SUPABASE_URL` - Your Supabase project URL
+- `SUPABASE_SECRET_KEY` - Service role key
+- `OPENAI_API_KEY` - OpenAI API key for AI features
+
+### **Database Migration**
+
+Run migrations in order:
+
+```sql
+1. 20240320000000_init.sql
+2. 20250101000001_create_templates.sql
+3. 20250101000002_add_name_to_events.sql
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **OpenAI** for providing powerful AI capabilities
+- **Supabase** for the excellent backend platform
+- **Vercel** for seamless deployment experience
+- **Heroicons** for beautiful, consistent icons
+- **Tailwind CSS** for the utility-first CSS framework
+
+---
+
+**Doy Pal** - Making child behavior tracking intelligent, beautiful, and effortless. 🌟

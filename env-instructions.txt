@@ -1,17 +1,102 @@
-Environment Variables Setup Instructions
-======================================
+Doy-Pal Environment Setup Instructions
+=========================================
 
-The admin API is failing because of missing environment variables. 
-Please update your .env.local file to include these variables:
+REQUIRED ENVIRONMENT VARIABLES:
+------------------------------
 
-SUPABASE_URL=https://rwierjoauxrzhsyaajeo.supabase.co
-SUPABASE_SECRET_KEY=your-supabase-secret-key-here
+1. SUPABASE_URL
+   - Your Supabase project URL
+   - Found at: Supabase Dashboard > Settings > API > Project URL
+   - Format: https://your-project-id.supabase.co
 
-Replace "your-supabase-secret-key-here" with your actual Supabase secret key.
+2. SUPABASE_SECRET_KEY
+   - Your Supabase service role secret key (NOT anon key)
+   - Found at: Supabase Dashboard > Settings > API > Service Role Key
+   - Required for server-side database operations
+   - Used for: Events CRUD, Templates management, AI processing
 
-After updating the .env.local file, restart the development server with:
-npm run dev
+3. OPENAI_API_KEY
+   - Your OpenAI API key
+   - Found at: https://platform.openai.com/api-keys
+   - Required for: AI translation, embedding generation, similarity search
+   - Models used: text-embedding-3-large, gpt-4o
 
-Notes:
-- These variables are used server-side only in API routes
-- Using SUPABASE_URL and SUPABASE_SECRET_KEY is correct since they aren't exposed to the client 
+SETUP STEPS:
+-----------
+
+1. Copy .env.example to .env.local:
+   cp .env.example .env.local
+
+2. Add your actual values to .env.local:
+   SUPABASE_URL=https://your-project-id.supabase.co
+   SUPABASE_SECRET_KEY=your-service-role-key-here
+   OPENAI_API_KEY=sk-your-openai-key-here
+
+3. Required Supabase Setup:
+   - Enable vector extension: CREATE EXTENSION IF NOT EXISTS vector;
+   - Run migrations in order:
+     * 20240320000000_init.sql (events table, views, functions)
+     * 20250101000001_create_templates.sql (templates table)
+     * 20250101000002_add_name_to_events.sql (name field)
+
+4. Database Verification:
+   - Tables: events, templates
+   - Views: point_summaries
+   - Functions: find_similar_events, categorize_events
+   - Columns in events: id, name, description, points, timestamp, day_of_week, 
+     day_of_month, created_at, updated_at, is_active, normalized_description, 
+     description_embedding, template_id
+
+FEATURES ENABLED:
+----------------
+
+✅ Smart Template System
+   - Searchable template dropdown
+   - Auto-fill event forms
+   - Usage frequency tracking
+   - Manual entry option
+
+✅ AI-Powered Processing
+   - Automatic translation to English
+   - Semantic embeddings generation
+   - Cross-language event matching
+   - Similarity detection
+
+✅ Modern Mobile UI
+   - Card-based design
+   - Touch-optimized controls
+   - Safe area support for devices with notches
+   - Native date/time pickers
+   - Swipe gestures
+
+✅ Enhanced Event Management
+   - Optional event names (auto-generated if empty)
+   - Template integration
+   - Point tracking (1-100 range)
+   - Edit/delete capabilities
+
+TROUBLESHOOTING:
+---------------
+
+❌ If templates don't load:
+   - Check templates table exists: SELECT * FROM templates LIMIT 1;
+   - Verify API endpoint: curl "http://localhost:3000/api/templates"
+   - Ensure template migration was run
+
+❌ If AI features don't work:
+   - Verify OpenAI API key is valid and has credits
+   - Check required models are available (text-embedding-3-large, gpt-4o)
+   - Test with: curl -X POST .../api/admin/events/update-all-embeddings
+
+❌ If mobile UI looks broken:
+   - Check console for CSS loading errors
+   - Verify mobile-safe-bottom class is applied
+   - Clear browser cache and hard refresh
+
+❌ If Supabase connection fails:
+   - Verify URL format is correct (https://...)
+   - Ensure you're using SERVICE ROLE key, not anon key
+   - Check key permissions in Supabase dashboard
+
+VERSION: v2.0.0 (January 2025)
+DOCUMENTATION: See /docs/ folder for detailed guides 

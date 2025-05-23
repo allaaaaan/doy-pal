@@ -1,6 +1,6 @@
 # Setup Guide
 
-This guide provides step-by-step instructions for setting up the Doy-Pal application, including all dependencies, environment configuration, and database setup.
+This guide provides step-by-step instructions for setting up the Doy-Pal application, including all dependencies, environment configuration, database setup, and the latest template system.
 
 ## Prerequisites
 
@@ -35,7 +35,8 @@ This will install all required packages including:
 - Next.js 15.3.2
 - React 19
 - Supabase client
-- TypeScript and Tailwind CSS
+- TypeScript and Tailwind CSS 4
+- Heroicons for consistent iconography
 
 ### 3. Environment Configuration
 
@@ -82,32 +83,22 @@ NODE_ENV=development
 
 ## Database Setup
 
-### 1. Initial Schema Migration
+### 1. Execute Migrations in Order
 
-Run the initial migration in your Supabase SQL editor:
+Run these SQL scripts in your Supabase SQL editor in the following order:
 
-```bash
-# Copy the content of supabase/migrations/20240320000000_init.sql
-# and execute it in Supabase SQL Editor
+```sql
+-- 1. Initial schema
+-- Execute: supabase/migrations/20240320000000_init.sql
+
+-- 2. Create templates table
+-- Execute: supabase/migrations/20250101000001_create_templates.sql
+
+-- 3. Add name field to events
+-- Execute: supabase/migrations/20250101000002_add_name_to_events.sql
 ```
 
-### 2. AI Enhancement Migrations
-
-Execute the following SQL scripts in order:
-
-**Add Embedding Support**:
-
-```bash
-# Execute scripts/add_embedding_column.sql
-```
-
-**Add Multilingual Support**:
-
-```bash
-# Execute scripts/add_normalized_description.sql
-```
-
-### 3. Enable Required Extensions
+### 2. Enable Required Extensions
 
 Ensure these PostgreSQL extensions are enabled in Supabase:
 
@@ -117,7 +108,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
-### 4. Verify Database Setup
+### 3. Verify Database Setup
 
 Check that all tables and functions are created:
 
@@ -131,9 +122,27 @@ SELECT routine_name FROM information_schema.routines
 WHERE routine_schema = 'public' AND routine_type = 'FUNCTION';
 ```
 
-Expected tables: `events`
+Expected tables: `events`, `templates`
 Expected views: `point_summaries`
 Expected functions: `find_similar_events`, `categorize_events`
+
+### 4. Verify Schema Columns
+
+Ensure your events table has all required columns:
+
+```sql
+-- Check events table structure
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'events' AND table_schema = 'public'
+ORDER BY ordinal_position;
+```
+
+Expected columns:
+
+- `id`, `name`, `description`, `points`, `timestamp`, `day_of_week`, `day_of_month`
+- `created_at`, `updated_at`, `is_active`
+- `normalized_description`, `description_embedding`, `template_id`
 
 ## Development Server
 
@@ -154,7 +163,21 @@ npm start
 
 ## Initial Data and Testing
 
-### 1. Add Sample Events
+### 1. Create Sample Templates
+
+Add sample templates through the application or via API:
+
+```bash
+curl -X POST http://localhost:3000/api/templates \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Helped with chores",
+    "description": "Helped with household chores like cleaning or organizing",
+    "default_points": 3
+  }'
+```
+
+### 2. Add Sample Events
 
 You can add sample events through the application UI or via API:
 
@@ -162,12 +185,14 @@ You can add sample events through the application UI or via API:
 curl -X POST http://localhost:3000/api/events \
   -H "Content-Type: application/json" \
   -d '{
-    "description": "Helped set the table",
-    "points": 2
+    "name": "Evening Help",
+    "description": "Helped set the table for dinner",
+    "points": 2,
+    "template_id": "your-template-id"
   }'
 ```
 
-### 2. Generate Embeddings
+### 3. Generate Embeddings
 
 After adding events, generate embeddings for AI features:
 
@@ -175,7 +200,15 @@ After adding events, generate embeddings for AI features:
 curl -X POST http://localhost:3000/api/admin/events/update-all-embeddings
 ```
 
-### 3. Test Similarity Search
+### 4. Test Template System
+
+Test template search functionality:
+
+```bash
+curl "http://localhost:3000/api/templates?search=help"
+```
+
+### 5. Test Similarity Search
 
 Test the similarity search functionality:
 
@@ -191,6 +224,14 @@ curl -X POST http://localhost:3000/api/admin/events/similar \
 
 ## Configuration Options
 
+### Template System Settings
+
+Adjust these values based on your needs:
+
+- **Search Threshold**: Fuzzy matching sensitivity for template search
+- **Auto-fill Behavior**: Whether templates should auto-populate all fields
+- **Usage Tracking**: Frequency updates for popular templates
+
 ### Similarity Search Settings
 
 Adjust these values in the API calls based on your needs:
@@ -198,6 +239,15 @@ Adjust these values in the API calls based on your needs:
 - **Threshold**: 0.4-0.9 (lower = more results, higher = more precise)
 - **Limit**: 1-50 (maximum results to return)
 - **Batch Size**: 3 (for bulk embedding updates)
+
+### Mobile UI Customization
+
+The app includes mobile-first optimizations:
+
+- **Safe Area Insets**: Automatic handling for devices with notches
+- **Touch Targets**: Minimum 44px touch targets for accessibility
+- **Swipe Gestures**: Configurable swipe thresholds
+- **Loading States**: Skeleton screens and progress indicators
 
 ### Performance Tuning
 
@@ -209,6 +259,14 @@ DROP INDEX IF EXISTS events_description_embedding_idx;
 CREATE INDEX events_description_embedding_idx
 ON events USING ivfflat (description_embedding vector_cosine_ops)
 WITH (lists = 200); -- Increase lists for larger datasets
+
+-- Index for template search
+CREATE INDEX IF NOT EXISTS templates_name_search_idx
+ON templates USING gin(to_tsvector('english', name));
+
+-- Index for template frequency
+CREATE INDEX IF NOT EXISTS templates_frequency_idx
+ON templates (frequency DESC, last_seen DESC);
 ```
 
 #### API Rate Limiting
@@ -251,6 +309,26 @@ If pgvector is not available:
 2. Enable "vector" extension
 3. Re-run the embedding migration script
 
+#### Template System Issues
+
+If templates aren't working:
+
+```sql
+-- Check templates table exists
+SELECT * FROM templates LIMIT 1;
+
+-- Check template API endpoint
+curl "http://localhost:3000/api/templates"
+```
+
+#### Mobile UI Issues
+
+Common mobile display problems:
+
+- **Bottom Content Cut Off**: Ensure `mobile-safe-bottom` class is applied
+- **Date/Time Pickers**: Check that custom styles are loading correctly
+- **Touch Targets**: Verify buttons meet minimum size requirements
+
 ### Database Issues
 
 #### Missing Functions
@@ -261,8 +339,7 @@ If database functions are missing:
 -- Check function exists
 SELECT * FROM pg_proc WHERE proname = 'find_similar_events';
 
--- If missing, re-run the migration:
--- Execute scripts/add_embedding_column.sql
+-- If missing, re-run the migrations in order
 ```
 
 #### Performance Issues
@@ -272,8 +349,15 @@ For large datasets:
 1. Increase vector index lists parameter
 2. Add composite indexes for common queries
 3. Consider archiving old events
+4. Optimize template search with proper indexing
 
 ### API Issues
+
+#### 404 Errors on Template Endpoints
+
+- Ensure template migrations have been run
+- Check that template API routes exist in `app/api/templates/`
+- Verify template table structure matches expected schema
 
 #### 404 Errors on Admin Endpoints
 
@@ -325,10 +409,12 @@ NODE_ENV=production
 
 ### Post-Deployment
 
-1. Run database migrations on production Supabase
-2. Generate embeddings for existing events
-3. Test all API endpoints
-4. Monitor performance and costs
+1. Run database migrations on production Supabase (in order)
+2. Create initial template data
+3. Generate embeddings for existing events
+4. Test all API endpoints including template system
+5. Verify mobile UI displays correctly on various devices
+6. Monitor performance and costs
 
 ## Monitoring and Maintenance
 
@@ -338,14 +424,25 @@ NODE_ENV=production
 - Check database performance with vector operations
 - Update embeddings for new events
 - Review and optimize similarity thresholds
+- Track template usage analytics
+- Update popular templates based on usage patterns
 
 ### Health Checks
 
-- Test API endpoints regularly
+- Test API endpoints regularly (events, templates, admin)
 - Monitor database connection
 - Verify AI features are working
 - Check embedding generation performance
+- Ensure mobile UI renders correctly
+- Verify template search functionality
+
+### Template Management
+
+- Monitor template usage frequency
+- Update template descriptions based on user feedback
+- Archive unused templates
+- Create new templates based on common manual entries
 
 ---
 
-_This setup guide covers all aspects of getting Doy-Pal running with full AI capabilities. For specific feature documentation, refer to the other files in this docs folder._
+_This setup guide covers all aspects of getting Doy-Pal v2.0.0 running with full AI capabilities, template system, and modern mobile UI. For specific feature documentation, refer to the other files in this docs folder._
