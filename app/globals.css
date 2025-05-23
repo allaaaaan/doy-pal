@@ -39,3 +39,34 @@ body {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
+/* Mobile safe area and spacing */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-safe-bottom {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Fix for date/time input styling on mobile */
+input[type="date"],
+input[type="time"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 12px;
+  color: transparent;
+  cursor: pointer;
+}
+
+/* Ensure proper mobile viewport */
+@media (max-width: 768px) {
+  .mobile-content {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for better mobile support */
+  }
+}

@@ -137,7 +137,7 @@ export default function EventFormPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 mobile-content">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-md mx-auto px-4 py-4">
@@ -158,7 +158,7 @@ export default function EventFormPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto p-4 space-y-6">
+      <div className="max-w-md mx-auto p-4 mobile-safe-bottom space-y-6">
         {/* Quick Tip */}
         <TemplateQuickTip />
 
@@ -262,10 +262,10 @@ export default function EventFormPage() {
                   id="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full p-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-inherit text-inherit focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-inherit text-inherit focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   disabled={isSubmitting}
                 />
-                <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
             <div>
@@ -281,10 +281,10 @@ export default function EventFormPage() {
                   id="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="w-full p-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-inherit text-inherit focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-inherit text-inherit focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   disabled={isSubmitting}
                 />
-                <ClockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <ClockIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
           </div>
@@ -315,7 +315,7 @@ export default function EventFormPage() {
           <h3 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">
             💡 Tips
           </h3>
-          <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+          <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1.5">
             <li>• Use templates for common events to save time</li>
             <li>• Events are automatically translated and analyzed with AI</li>
             <li>• Points help track your child's achievements</li>
