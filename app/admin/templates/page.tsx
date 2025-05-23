@@ -103,18 +103,20 @@ export default function TemplatesAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-        <div className="text-lg">Loading templates...</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
+        <div className="text-lg text-gray-900 dark:text-white">
+          Loading templates...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               AI Template Management
             </h1>
             <button
@@ -123,7 +125,7 @@ export default function TemplatesAdminPage() {
               className={`px-6 py-2 rounded-lg font-medium ${
                 analyzing
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
               } text-white transition-colors`}
             >
               {analyzing ? "Analyzing..." : "Analyze Latest Events"}
@@ -131,13 +133,13 @@ export default function TemplatesAdminPage() {
           </div>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
 
           {analysisResult && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded mb-4">
               <p className="font-medium">Analysis Complete!</p>
               <p>{analysisResult.message}</p>
               <p className="text-sm mt-1">
@@ -146,73 +148,76 @@ export default function TemplatesAdminPage() {
             </div>
           )}
 
-          <div className="text-sm text-gray-600 mb-4">
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Current templates: {templates.length} | Cost-effective AI analysis
             on demand
           </div>
         </div>
 
         {templates.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <h2 className="text-xl font-medium text-gray-700 mb-2">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
+            <h2 className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-2">
               No Templates Found
             </h2>
-            <p className="text-gray-500 mb-4">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
               Click "Analyze Latest Events" to generate AI-powered templates
               from your event data.
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="px-6 py-4 bg-gray-50 border-b">
-              <h2 className="text-lg font-medium text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white">
                 Active Templates
               </h2>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Template
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Points
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Usage
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       AI Confidence
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Last Used
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
                   {templates.map((template) => (
-                    <tr key={template.id} className="hover:bg-gray-50">
+                    <tr
+                      key={template.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
                       <td className="px-6 py-4">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {template.name}
                           </div>
-                          <div className="text-sm text-gray-500 max-w-xs truncate">
+                          <div className="text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
                             {template.description}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
                           {template.default_points} pts
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {template.frequency} times
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -220,19 +225,21 @@ export default function TemplatesAdminPage() {
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               template.ai_confidence >= 0.8
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200"
                                 : template.ai_confidence >= 0.6
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
+                                ? "bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200"
+                                : "bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200"
                             }`}
                           >
                             {(template.ai_confidence * 100).toFixed(0)}%
                           </span>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-gray-400 dark:text-gray-500">
+                            -
+                          </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {template.last_seen
                           ? new Date(template.last_seen).toLocaleDateString()
                           : "Never"}
@@ -244,8 +251,8 @@ export default function TemplatesAdminPage() {
                           }
                           className={`${
                             template.is_active
-                              ? "text-red-600 hover:text-red-900"
-                              : "text-green-600 hover:text-green-900"
+                              ? "text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                              : "text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                           }`}
                         >
                           {template.is_active ? "Deactivate" : "Activate"}

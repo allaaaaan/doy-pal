@@ -27,6 +27,12 @@ export default function AdminLayout({
                 Templates
               </Link>
               <Link
+                href="/admin/link-events"
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Link Events
+              </Link>
+              <Link
                 href="/admin/embeddings"
                 className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               >

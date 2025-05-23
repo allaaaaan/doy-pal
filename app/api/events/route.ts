@@ -49,16 +49,29 @@ export async function POST(request: NextRequest) {
       is_active: true,
     };
 
+    // Auto-generate name if not provided
+    if (!eventData.name && eventData.description) {
+      eventData.name =
+        eventData.description.length <= 50
+          ? eventData.description
+          : eventData.description.substring(0, 47) + "...";
+    }
+
     // If template_id is provided, update template usage
     if (eventData.template_id) {
-      // Update template's last_seen timestamp
+      // Get current template frequency
+      const { data: template } = await supabase
+        .from("templates")
+        .select("frequency")
+        .eq("id", eventData.template_id)
+        .single();
+
+      // Update template's last_seen timestamp and frequency
       await supabase
         .from("templates")
         .update({
           last_seen: new Date().toISOString(),
-          frequency: supabase.rpc("increment_frequency", {
-            template_id: eventData.template_id,
-          }),
+          frequency: (template?.frequency || 0) + 1,
         })
         .eq("id", eventData.template_id);
     }
