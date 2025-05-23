@@ -23,6 +23,7 @@ const EditModal = ({
   onSave: (
     id: string,
     updatedEvent: {
+      name?: string;
       description: string;
       points: number;
       timestamp: string;
@@ -31,6 +32,7 @@ const EditModal = ({
     }
   ) => void;
 }) => {
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [points, setPoints] = useState(1);
   const [date, setDate] = useState("");
@@ -39,6 +41,7 @@ const EditModal = ({
 
   useEffect(() => {
     if (event) {
+      setName(event.name || "");
       setDescription(event.description);
       setPoints(event.points);
 
@@ -68,6 +71,7 @@ const EditModal = ({
     ];
 
     onSave(event.id, {
+      name: name.trim() || undefined,
       description,
       points,
       timestamp: timestamp.toISOString(),
@@ -88,16 +92,33 @@ const EditModal = ({
             <div className="mb-4">
               <label
                 className="block text-sm font-medium mb-1"
+                htmlFor="edit-name"
+              >
+                Event Name
+              </label>
+              <input
+                type="text"
+                id="edit-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full p-2 border rounded-md bg-inherit text-inherit"
+                placeholder="Event name (optional)"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-sm font-medium mb-1"
                 htmlFor="edit-description"
               >
                 Description
               </label>
-              <input
-                type="text"
+              <textarea
                 id="edit-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-2 border rounded-md bg-inherit text-inherit"
+                className="w-full p-2 border rounded-md bg-inherit text-inherit resize-none"
+                rows={3}
                 disabled={isSubmitting}
               />
             </div>
@@ -275,6 +296,7 @@ export default function EventListPage() {
   const handleSaveEdit = async (
     id: string,
     updatedEvent: {
+      name?: string;
       description: string;
       points: number;
       timestamp: string;

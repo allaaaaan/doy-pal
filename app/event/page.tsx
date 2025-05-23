@@ -27,6 +27,7 @@ export default function EventFormPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
     null
   );
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [points, setPoints] = useState(1);
   const [date, setDate] = useState("");
@@ -47,6 +48,7 @@ export default function EventFormPage() {
   // Update form when template is selected
   useEffect(() => {
     if (selectedTemplate) {
+      setName(selectedTemplate.name);
       setDescription(selectedTemplate.description);
       setPoints(selectedTemplate.default_points);
     }
@@ -66,6 +68,7 @@ export default function EventFormPage() {
     setSelectedTemplate(template);
     if (!template) {
       // Reset form for manual entry
+      setName("");
       setDescription("");
       setPoints(1);
     }
@@ -93,6 +96,7 @@ export default function EventFormPage() {
       ];
 
       const eventData = {
+        name: name.trim() || undefined, // Let API auto-generate if empty
         description: description.trim(),
         points,
         timestamp: timestamp.toISOString(),
@@ -115,6 +119,7 @@ export default function EventFormPage() {
 
       // Reset form
       setSelectedTemplate(null);
+      setName("");
       setDescription("");
       setPoints(1);
       formRef.current?.reset();
@@ -171,6 +176,30 @@ export default function EventFormPage() {
           onSubmit={handleSubmit}
           className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 space-y-4"
         >
+          {/* Event Name */}
+          <div>
+            <label
+              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+              htmlFor="name"
+            >
+              Event Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-inherit text-inherit focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              placeholder="Give your event a name (optional)"
+              disabled={isSubmitting}
+            />
+            {selectedTemplate && (
+              <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
+                ✨ Auto-filled from template: {selectedTemplate.name}
+              </p>
+            )}
+          </div>
+
           {/* Event Description */}
           <div>
             <label
@@ -288,8 +317,11 @@ export default function EventFormPage() {
           </h3>
           <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
             <li>• Use templates for common events to save time</li>
+            <li>• Events are automatically translated and analyzed with AI</li>
             <li>• Points help track your child's achievements</li>
-            <li>• Events are automatically organized by date</li>
+            <li>
+              • Name field is optional - it auto-generates from description
+            </li>
           </ul>
         </div>
       </div>

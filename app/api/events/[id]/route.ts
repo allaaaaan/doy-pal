@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../lib/supabase";
 import { Database } from "../../types/database.types";
+import { translateAndGenerateEmbedding } from "../../../utils/embeddings";
 
 type Event = Database["public"]["Tables"]["events"]["Row"];
 
@@ -13,13 +14,14 @@ type ResponseData = {
 // GET /api/events/[id]
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { data, error } = await supabase
       .from("events")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("is_active", true)
       .single();
 
@@ -37,14 +39,40 @@ export async function GET(
 // PATCH /api/events/[id]
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
+
+    // If description was updated, regenerate translation and embedding
+    if (body.description) {
+      try {
+        const aiResult = await translateAndGenerateEmbedding(body.description);
+        body.normalized_description = aiResult.translatedText;
+        body.description_embedding = aiResult.embedding;
+        console.log("AI processing completed for updated event");
+      } catch (aiError) {
+        console.error(
+          "AI processing failed for update, continuing without AI features:",
+          aiError
+        );
+        // Continue without AI features if it fails
+      }
+    }
+
+    // Auto-generate name if not provided but description exists
+    if (!body.name && body.description) {
+      body.name =
+        body.description.length <= 50
+          ? body.description
+          : body.description.substring(0, 47) + "...";
+    }
+
     const { data, error } = await supabase
       .from("events")
       .update(body)
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("is_active", true)
       .select()
       .single();
@@ -63,14 +91,15 @@ export async function PATCH(
 // DELETE /api/events/[id]
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Perform soft delete by setting is_active to false
     const { data, error } = await supabase
       .from("events")
       .update({ is_active: false })
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
       .single();
 

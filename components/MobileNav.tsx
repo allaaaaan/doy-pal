@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Calendar } from "lucide-react";
+import { HomeIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 
@@ -44,9 +44,8 @@ export default function MobileNav() {
         href="/home"
         className="flex flex-col items-center justify-center w-20 h-full"
       >
-        <Home
-          size={24}
-          className={isActive("/home") ? iconActive : iconInactive}
+        <HomeIcon
+          className={`h-6 w-6 ${isActive("/home") ? iconActive : iconInactive}`}
         />
         <span
           className={`text-xs mt-1 ${
@@ -60,9 +59,10 @@ export default function MobileNav() {
         href="/event"
         className="flex flex-col items-center justify-center w-20 h-full"
       >
-        <Calendar
-          size={24}
-          className={isActive("/event") ? iconActive : iconInactive}
+        <CalendarIcon
+          className={`h-6 w-6 ${
+            isActive("/event") ? iconActive : iconInactive
+          }`}
         />
         <span
           className={`text-xs mt-1 ${

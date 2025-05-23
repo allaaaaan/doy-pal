@@ -12,6 +12,7 @@ export interface Database {
       events: {
         Row: {
           id: string;
+          name?: string;
           description: string;
           points: number;
           timestamp: string;
@@ -20,9 +21,13 @@ export interface Database {
           created_at: string;
           updated_at: string;
           is_active: boolean;
+          normalized_description?: string;
+          description_embedding?: number[];
+          template_id?: string;
         };
         Insert: {
           id?: string;
+          name?: string;
           description: string;
           points: number;
           timestamp?: string;
@@ -31,9 +36,13 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           is_active?: boolean;
+          normalized_description?: string;
+          description_embedding?: number[];
+          template_id?: string;
         };
         Update: {
           id?: string;
+          name?: string;
           description?: string;
           points?: number;
           timestamp?: string;
@@ -42,6 +51,47 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           is_active?: boolean;
+          normalized_description?: string;
+          description_embedding?: number[];
+          template_id?: string;
+        };
+      };
+      templates: {
+        Row: {
+          id: string;
+          name: string;
+          description: string;
+          default_points: number;
+          frequency: number;
+          ai_confidence?: number;
+          last_seen?: string;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description: string;
+          default_points: number;
+          frequency?: number;
+          ai_confidence?: number;
+          last_seen?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          default_points?: number;
+          frequency?: number;
+          ai_confidence?: number;
+          last_seen?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };

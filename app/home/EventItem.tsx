@@ -82,8 +82,13 @@ export default function EventItem({ event, onDelete, onEdit }: EventItemProps) {
 
             {/* Description */}
             <div className="font-medium text-base line-clamp-2 text-gray-900 dark:text-gray-100">
-              {event.description}
+              {event.name || event.description}
             </div>
+            {event.name && event.name !== event.description && (
+              <div className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-1">
+                {event.description}
+              </div>
+            )}
           </div>
 
           {/* Points badge */}
