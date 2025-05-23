@@ -2,15 +2,22 @@ import { Database } from "../api/types/database.types";
 import { useEffect, useState } from "react";
 import { format, formatDistanceToNow } from "date-fns";
 import {
-  Edit,
-  Trash2,
-  Award,
-  Calendar,
-  Clock,
-  ChevronLeft,
-} from "lucide-react";
+  PencilIcon,
+  TrashIcon,
+  StarIcon,
+  CalendarIcon,
+  ClockIcon,
+  ChevronLeftIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
 
-type Event = Database["public"]["Tables"]["events"]["Row"];
+type Event = Database["public"]["Tables"]["events"]["Row"] & {
+  templates?: {
+    id: string;
+    name: string;
+    ai_confidence?: number;
+  } | null;
+};
 
 interface EventItemProps {
   event: Event;
@@ -47,45 +54,63 @@ export default function EventItem({ event, onDelete, onEdit }: EventItemProps) {
   const eventDate = new Date(event.timestamp);
 
   return (
-    <div className="relative overflow-hidden rounded-lg mb-3">
+    <div className="relative overflow-hidden rounded-xl mb-3">
       {/* Main item content */}
       <div
-        className={`bg-white dark:bg-gray-800 shadow p-4 transition-transform duration-300 ease-in-out ${
+        className={`bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 p-4 transition-all duration-300 ease-in-out hover:shadow-md ${
           actionsVisible ? "transform -translate-x-20" : ""
         }`}
         onClick={toggleActions}
       >
-        {/* Description and points */}
-        <div className="flex justify-between items-start mb-2">
-          <div className="font-medium text-base line-clamp-2 pr-2">
-            {event.description}
+        {/* Template badge and points */}
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1">
+            {/* Template indicator */}
+            {event.templates && (
+              <div className="flex items-center space-x-1 mb-2">
+                <SparklesIcon className="h-3 w-3 text-blue-500" />
+                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                  {event.templates.name}
+                </span>
+                {event.templates.ai_confidence && (
+                  <span className="text-xs text-gray-500">
+                    ({Math.round(event.templates.ai_confidence * 100)}% match)
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Description */}
+            <div className="font-medium text-base line-clamp-2 text-gray-900 dark:text-gray-100">
+              {event.description}
+            </div>
           </div>
-          <div className="flex items-center bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-semibold shrink-0">
-            <Award className="w-3.5 h-3.5 mr-1" /> {event.points} pts
+
+          {/* Points badge */}
+          <div className="flex items-center bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 px-3 py-1.5 rounded-full text-sm font-semibold shrink-0 ml-3">
+            <StarIcon className="w-4 h-4 mr-1" />
+            {event.points}
           </div>
         </div>
 
         {/* Date information row */}
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          {/* Date */}
-          <div className="flex items-center gap-x-3">
+          {/* Date and time */}
+          <div className="flex items-center gap-x-4">
             <div className="flex items-center">
-              <Calendar className="w-3.5 h-3.5 mr-1" />
+              <CalendarIcon className="w-3.5 h-3.5 mr-1" />
               <span>{format(eventDate, "MMM d, yyyy")}</span>
             </div>
 
-            {/* Time */}
             <div className="flex items-center">
-              <Clock className="w-3.5 h-3.5 mr-1" />
+              <ClockIcon className="w-3.5 h-3.5 mr-1" />
               <span>{format(eventDate, "h:mm a")}</span>
             </div>
           </div>
 
           {/* Day and time ago */}
           <div className="flex items-center">
-            <span>{event.day_of_week}</span>
-            <span className="mx-1 text-gray-400">•</span>
-            <span>{timeAgo.replace("about ", "")}</span>
+            <span className="text-xs">{timeAgo.replace("about ", "")}</span>
           </div>
         </div>
 
@@ -93,10 +118,10 @@ export default function EventItem({ event, onDelete, onEdit }: EventItemProps) {
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
             <button
               onClick={toggleActions}
-              className="text-gray-500 p-2"
+              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 p-2 transition-colors"
               aria-label="Close actions"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeftIcon className="h-4 w-4" />
             </button>
           </div>
         )}
@@ -113,17 +138,17 @@ export default function EventItem({ event, onDelete, onEdit }: EventItemProps) {
       >
         <button
           onClick={handleEdit}
-          className="bg-blue-500 text-white h-full w-10 flex items-center justify-center"
+          className="bg-blue-500 hover:bg-blue-600 text-white h-full w-10 flex items-center justify-center transition-colors"
           aria-label="Edit"
         >
-          <Edit size={16} />
+          <PencilIcon className="h-4 w-4" />
         </button>
         <button
           onClick={handleDelete}
-          className="bg-red-500 text-white h-full w-10 flex items-center justify-center"
+          className="bg-red-500 hover:bg-red-600 text-white h-full w-10 flex items-center justify-center transition-colors"
           aria-label="Archive"
         >
-          <Trash2 size={16} />
+          <TrashIcon className="h-4 w-4" />
         </button>
       </div>
     </div>

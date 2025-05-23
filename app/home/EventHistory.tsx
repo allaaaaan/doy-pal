@@ -16,11 +16,29 @@ export default function EventHistory({
 }: EventHistoryProps) {
   return (
     <div className="flex flex-col">
-      <h2 className="text-lg font-semibold mb-2">Event History</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Recent Activity
+        </h2>
+        {events.length > 0 && (
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {events.length} event{events.length !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
+
       {events.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">No events recorded yet</p>
+        <div className="text-center py-12">
+          <div className="text-4xl mb-4">🎯</div>
+          <p className="text-gray-500 dark:text-gray-400 mb-2">
+            No events recorded yet
+          </p>
+          <p className="text-sm text-gray-400 dark:text-gray-500">
+            Start tracking your child's achievements!
+          </p>
+        </div>
       ) : (
-        <div className="h-[calc(100vh-18rem)] overflow-y-auto pr-1 -mr-1 pb-4">
+        <div className="max-h-96 overflow-y-auto pr-1 -mr-1">
           <div className="space-y-3">
             {events.map((event) => (
               <EventItem

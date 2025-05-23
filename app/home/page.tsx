@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Database } from "../api/types/database.types";
 import EventHistory from "./EventHistory";
 import { format } from "date-fns";
+import FloatingActionButton from "../../components/FloatingActionButton";
 
 type Event = Database["public"]["Tables"]["events"]["Row"];
 type PointSummary = Database["public"]["Views"]["point_summaries"]["Row"];
@@ -320,41 +321,77 @@ export default function EventListPage() {
 
   if (isLoading) {
     return (
-      <main className="max-w-md mx-auto p-4 pb-24">
-        <h1 className="text-2xl font-bold mb-6 text-center">Doy Pal</h1>
-        <div className="text-center">Loading...</div>
-      </main>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Header */}
+        <div className="bg-white dark:bg-gray-800 shadow-sm">
+          <div className="max-w-md mx-auto px-4 py-6">
+            <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
+              Doy Pal
+            </h1>
+          </div>
+        </div>
+
+        {/* Loading Content */}
+        <div className="max-w-md mx-auto p-4 space-y-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 animate-pulse">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 animate-pulse">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
+            <div className="space-y-3">
+              <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+              <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+              <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <main className="max-w-md mx-auto h-screen overflow-hidden flex flex-col p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-center">Doy Pal</h1>
-      </div>
-      <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-md mb-4 flex justify-between items-center">
-        <div>
-          <h2 className="text-lg font-semibold">Total Points</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300">All time</p>
-        </div>
-        <div className="text-3xl font-bold text-blue-600 dark:text-blue-300">
-          {pointSummary?.total_points || 0}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 shadow-sm">
+        <div className="max-w-md mx-auto px-4 py-6">
+          <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
+            Doy Pal
+          </h1>
         </div>
       </div>
-      <div className="flex-1 min-h-0">
-        <EventHistory
-          events={events}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-        />
+
+      {/* Main Content */}
+      <div className="max-w-md mx-auto p-4 space-y-4">
+        {/* Points Summary Card */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-semibold mb-1">Total Points</h2>
+              <p className="text-blue-100 text-sm">All time achievements</p>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold">
+                {pointSummary?.total_points || 0}
+              </div>
+              <div className="text-blue-100 text-sm">
+                {events.length} events
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Event History */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+          <EventHistory
+            events={events}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+          />
+        </div>
       </div>
-      <Link
-        href="/event"
-        className="fixed bottom-20 right-6 z-50 flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-3xl shadow-lg dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-200"
-        aria-label="Add Event"
-      >
-        +
-      </Link>
+
+      <FloatingActionButton />
       <Toast message={toastMessage} isVisible={toastVisible} type={toastType} />
       <EditModal
         event={editingEvent}
@@ -362,6 +399,6 @@ export default function EventListPage() {
         onClose={closeEditModal}
         onSave={handleSaveEdit}
       />
-    </main>
+    </div>
   );
 }
