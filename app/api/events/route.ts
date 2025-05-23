@@ -16,7 +16,16 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from("events")
-      .select("*")
+      .select(
+        `
+        *,
+        templates (
+          id,
+          name,
+          ai_confidence
+        )
+      `
+      )
       .eq("is_active", true)
       .order("timestamp", { ascending: false });
 
@@ -39,10 +48,34 @@ export async function POST(request: NextRequest) {
       ...body,
       is_active: true,
     };
+
+    // If template_id is provided, update template usage
+    if (eventData.template_id) {
+      // Update template's last_seen timestamp
+      await supabase
+        .from("templates")
+        .update({
+          last_seen: new Date().toISOString(),
+          frequency: supabase.rpc("increment_frequency", {
+            template_id: eventData.template_id,
+          }),
+        })
+        .eq("id", eventData.template_id);
+    }
+
     const { data, error } = await supabase
       .from("events")
       .insert(eventData)
-      .select()
+      .select(
+        `
+        *,
+        templates (
+          id,
+          name,
+          ai_confidence
+        )
+      `
+      )
       .single();
 
     if (error) throw error;
