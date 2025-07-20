@@ -1,34 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../lib/supabase";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-interface UnlinkedEvent {
-  id: string;
-  name: string;
-  description: string;
-  normalized_description: string | null;
-  points: number;
-  timestamp: string;
-}
-
-interface Template {
-  id: string;
-  name: string;
-  description: string;
-  default_points: number;
-  ai_confidence: number;
-}
-
-interface LinkSuggestion {
-  event_id: string;
-  template_id: string;
-  confidence: number;
-  reason: string;
-}
 
 // GET - Fetch unlinked events and available templates
 export async function GET() {
@@ -138,38 +109,11 @@ export async function POST(request: NextRequest) {
         message: "Event linked to template successfully",
       });
     } else if (action === "generate_suggestions") {
-      // Generate AI-powered linking suggestions
-      const { data: unlinkedEvents, error: eventsError } = await supabase
-        .from("events")
-        .select(
-          "id, name, description, normalized_description, points, timestamp"
-        )
-        .is("template_id", null)
-        .eq("is_active", true)
-        .limit(20); // Smaller batch for AI processing
-
-      const { data: templates, error: templatesError } = await supabase
-        .from("templates")
-        .select("id, name, description, default_points")
-        .eq("is_active", true);
-
-      if (eventsError || templatesError || !unlinkedEvents || !templates) {
-        return NextResponse.json(
-          { error: "Failed to fetch data for suggestions" },
-          { status: 500 }
-        );
-      }
-
-      // Generate AI suggestions
-      const suggestions = await generateLinkingSuggestions(
-        unlinkedEvents,
-        templates as any
-      );
-
+      // AI suggestion generation is disabled
       return NextResponse.json({
-        success: true,
-        suggestions,
-        message: `Generated ${suggestions.length} linking suggestions`,
+        success: false,
+        suggestions: [],
+        message: "AI template linking suggestions feature is disabled",
       });
     } else if (action === "batch_link") {
       // Batch link multiple events based on suggestions
@@ -254,76 +198,5 @@ export async function POST(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  }
-}
-
-// Helper function to generate AI-powered linking suggestions
-async function generateLinkingSuggestions(
-  events: UnlinkedEvent[],
-  templates: Template[]
-): Promise<LinkSuggestion[]> {
-  try {
-    const prompt = `You are helping to link child behavior events to templates. For each event, suggest the best matching template.
-
-Events to match:
-${events
-  .map(
-    (e) =>
-      `Event ${e.id}: "${e.normalized_description || e.description}" (${
-        e.points
-      } points)`
-  )
-  .join("\n")}
-
-Available Templates:
-${templates
-  .map(
-    (t) =>
-      `Template ${t.id}: "${t.name}" - "${t.description}" (${t.default_points} points)`
-  )
-  .join("\n")}
-
-For each event, return a JSON array with suggestions:
-{
-  "suggestions": [
-    {
-      "event_id": "event_id_here",
-      "template_id": "best_matching_template_id",
-      "confidence": 0.85,
-      "reason": "Short explanation why this template matches"
-    }
-  ]
-}
-
-Only suggest matches with confidence > 0.6. If no good match exists, skip that event.`;
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an expert at matching child behavior events to templates based on content similarity and point values.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      temperature: 0.3,
-      max_tokens: 1500,
-    });
-
-    const aiResponse = completion.choices[0]?.message?.content;
-    if (!aiResponse) {
-      console.error("No AI response for suggestions");
-      return [];
-    }
-
-    const parsed = JSON.parse(aiResponse);
-    return parsed.suggestions || [];
-  } catch (error) {
-    console.error("Error generating AI suggestions:", error);
-    return [];
   }
 }

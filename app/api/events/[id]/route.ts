@@ -45,20 +45,9 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
-    // If description was updated, regenerate translation and embedding
+    // AI FEATURES DISABLED - Skip AI processing for updates
     if (body.description) {
-      try {
-        const aiResult = await translateAndGenerateEmbedding(body.description);
-        body.normalized_description = aiResult.translatedText;
-        body.description_embedding = aiResult.embedding;
-        console.log("AI processing completed for updated event");
-      } catch (aiError) {
-        console.error(
-          "AI processing failed for update, continuing without AI features:",
-          aiError
-        );
-        // Continue without AI features if it fails
-      }
+      console.log("AI processing skipped for updated event - features disabled");
     }
 
     // Auto-generate name if not provided but description exists

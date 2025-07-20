@@ -77,32 +77,9 @@ export default function TemplatesAdminPage() {
     }
   };
 
+  // AI FEATURES DISABLED - Analysis functionality removed
   const analyzeTemplates = async () => {
-    setAnalyzing(true);
-    setError(null);
-    setAnalysisResult(null);
-
-    try {
-      const response = await fetch("/api/admin/analyze-templates", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setAnalysisResult(data);
-        await fetchTemplates(); // Refresh templates list
-      } else {
-        setError(data.error || "Failed to analyze templates");
-      }
-    } catch (err) {
-      setError("Network error during analysis");
-    } finally {
-      setAnalyzing(false);
-    }
+    setError("AI template analysis is disabled");
   };
 
   const toggleTemplate = async (templateId: string, isActive: boolean) => {
@@ -397,17 +374,15 @@ export default function TemplatesAdminPage() {
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Create Template
               </button>
+              {/* AI FEATURES DISABLED - Analyze button hidden
               <button
                 onClick={analyzeTemplates}
-                disabled={analyzing}
-                className={`px-6 py-2 rounded-lg font-medium ${
-                  analyzing
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
-                } text-white transition-colors`}
+                disabled={true}
+                className="px-6 py-2 rounded-lg font-medium bg-gray-400 cursor-not-allowed text-white"
               >
-                {analyzing ? "Analyzing..." : "Analyze Latest Events"}
+                AI Analysis Disabled
               </button>
+              */}
             </div>
           </div>
 

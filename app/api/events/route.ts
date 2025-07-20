@@ -58,18 +58,9 @@ export async function POST(request: NextRequest) {
           : eventData.description.substring(0, 47) + "...";
     }
 
-    // Generate translation and embedding for the description
+    // AI FEATURES DISABLED - Skip AI processing
     let aiResult = null;
-    try {
-      aiResult = await translateAndGenerateEmbedding(eventData.description);
-      console.log("AI processing completed for event");
-    } catch (aiError) {
-      console.error(
-        "AI processing failed, continuing without AI features:",
-        aiError
-      );
-      // Continue without AI features if it fails
-    }
+    console.log("AI processing skipped - features disabled");
 
     // If template_id is provided, update template usage
     if (eventData.template_id) {
