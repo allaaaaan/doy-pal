@@ -6,7 +6,10 @@ import { StarIcon, GiftIcon } from "@heroicons/react/24/outline";
 type Reward = Database["public"]["Tables"]["rewards"]["Row"];
 
 interface RewardCardProps {
-  reward: Reward;
+  reward: Reward & {
+    is_redeemed?: boolean;
+    redeemed_at?: string | null;
+  };
   currentPoints?: number;
   onRedeem?: (rewardId: string) => void;
   onEdit?: (reward: Reward) => void;
@@ -26,20 +29,25 @@ export default function RewardCard({
 }: RewardCardProps) {
   const canAfford = currentPoints >= reward.point_cost;
   const pointsNeeded = reward.point_cost - currentPoints;
+  const isRedeemed = reward.is_redeemed;
 
   const handleRedeem = () => {
-    if (canAfford && onRedeem && !isRedeeming) {
+    if (canAfford && onRedeem && !isRedeeming && !isRedeemed) {
       onRedeem(reward.id);
     }
   };
 
   const getButtonText = () => {
+    if (isRedeemed) return "Redeemed";
     if (isRedeeming) return "Redeeming...";
-    if (canAfford) return `Redeem for ${reward.point_cost} points`;
-    return `Need ${pointsNeeded} more points`;
+    if (canAfford) return "Redeem";
+    return `Need ${pointsNeeded} more`;
   };
 
   const getButtonStyles = () => {
+    if (isRedeemed) {
+      return "bg-purple-500 cursor-not-allowed";
+    }
     if (isRedeeming) {
       return "bg-gray-400 cursor-not-allowed";
     }
@@ -79,6 +87,15 @@ export default function RewardCard({
           </div>
         </div>
 
+        {/* Redeemed banner */}
+        {/* {isRedeemed && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className="bg-purple-500 text-white px-3 py-2 rounded-lg text-sm font-bold transform rotate-12 shadow-lg">
+              ✅ REDEEMED
+            </div>
+          </div>
+        )} */}
+
         {/* Admin mode - status indicator */}
         {mode === "admin" && (
           <div className="absolute top-2 left-2">
@@ -111,10 +128,10 @@ export default function RewardCard({
         {mode === "redeem" ? (
           <button
             onClick={handleRedeem}
-            disabled={!canAfford || isRedeeming}
+            disabled={!canAfford || isRedeeming || isRedeemed}
             className={`w-full py-2 px-4 rounded-lg font-medium text-white transition-colors ${getButtonStyles()}`}
           >
-            {isRedeeming && (
+            {isRedeeming && !isRedeemed && (
               <div className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
             )}
             {getButtonText()}
@@ -142,7 +159,7 @@ export default function RewardCard({
       </div>
 
       {/* Points needed indicator for redeem mode */}
-      {mode === "redeem" && !canAfford && (
+      {mode === "redeem" && !canAfford && !isRedeemed && (
         <div className="px-4 pb-3">
           <div className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded text-center">
             💡 You need {pointsNeeded} more points

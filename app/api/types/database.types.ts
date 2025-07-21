@@ -161,26 +161,29 @@ export interface Database {
           updated_at?: string;
         };
       };
-      redemptions: {
-        Row: {
-          id: string;
-          reward_id: string;
-          points_spent: number;
-          redeemed_at: string;
-        };
-        Insert: {
-          id?: string;
-          reward_id: string;
-          points_spent: number;
-          redeemed_at?: string;
-        };
-        Update: {
-          id?: string;
-          reward_id?: string;
-          points_spent?: number;
-          redeemed_at?: string;
-        };
-      };
+             redemptions: {
+         Row: {
+           id: string;
+           reward_id: string;
+           points_spent: number;
+           redeemed_at: string;
+           status: string;
+         };
+         Insert: {
+           id?: string;
+           reward_id: string;
+           points_spent: number;
+           redeemed_at?: string;
+           status?: string;
+         };
+         Update: {
+           id?: string;
+           reward_id?: string;
+           points_spent?: number;
+           redeemed_at?: string;
+           status?: string;
+         };
+       };
     };
     Views: {
       point_summaries: {

@@ -6,9 +6,12 @@ type Redemption = Database["public"]["Tables"]["redemptions"]["Row"];
 type NewRedemption = Database["public"]["Tables"]["redemptions"]["Insert"];
 
 // GET /api/redemptions - Get redemption history
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const { data: redemptions, error } = await supabase
+    const { searchParams } = new URL(request.url);
+    const includeWithdrawn = searchParams.get('include_withdrawn') === 'true';
+
+    let query = supabase
       .from("redemptions")
       .select(`
         *,
@@ -18,7 +21,14 @@ export async function GET() {
           point_cost,
           image_url
         )
-      `)
+      `);
+
+    // Filter by status unless explicitly including withdrawn
+    if (!includeWithdrawn) {
+      query = query.eq('status', 'active');
+    }
+
+    const { data: redemptions, error } = await query
       .order("redeemed_at", { ascending: false });
 
     if (error) {
@@ -100,6 +110,7 @@ export async function POST(request: NextRequest) {
     const redemptionData: NewRedemption = {
       reward_id: reward.id,
       points_spent: reward.point_cost,
+      status: 'active',
     };
 
     const { data: redemption, error: redemptionError } = await supabase

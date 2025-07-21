@@ -33,6 +33,12 @@ export default function AdminLayout({
                 Rewards
               </Link>
               <Link
+                href="/admin/redemptions"
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Redemption History
+              </Link>
+              <Link
                 href="/admin/link-events"
                 className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               >

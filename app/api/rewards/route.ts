@@ -5,7 +5,7 @@ import { Database } from "../types/database.types";
 type Reward = Database["public"]["Tables"]["rewards"]["Row"];
 type NewReward = Database["public"]["Tables"]["rewards"]["Insert"];
 
-// GET /api/rewards - List active rewards
+// GET /api/rewards - List active rewards with redemption status
 export async function GET() {
   try {
     const { data: rewards, error } = await supabase
@@ -22,7 +22,26 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ rewards });
+    // Process rewards to add redemption status
+    const rewardsWithStatus = await Promise.all(
+      rewards?.map(async (reward) => {
+        // Check if this reward has been redeemed (and not withdrawn)
+        const { data: activeRedemption } = await supabase
+          .from("redemptions")
+          .select("id, redeemed_at")
+          .eq("reward_id", reward.id)
+          .eq("status", "active")
+          .single();
+
+        return {
+          ...reward,
+          is_redeemed: !!activeRedemption,
+          redeemed_at: activeRedemption?.redeemed_at || null
+        };
+      }) || []
+    );
+
+    return NextResponse.json({ rewards: rewardsWithStatus });
   } catch (error) {
     console.error("Rewards API error:", error);
     return NextResponse.json(

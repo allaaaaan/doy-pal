@@ -99,11 +99,8 @@ export default function RedeemPage() {
       // Success! Show message and redirect
       showToast(`🎉 ${data.message}`, "success");
       
-      // Update points summary
-      await fetch("/api/points")
-        .then(res => res.json())
-        .then(pointsData => setPointSummary(pointsData))
-        .catch(console.error);
+      // Refresh all data to show updated status
+      await loadData();
 
       // Redirect to home after a brief delay
       setTimeout(() => {
@@ -120,8 +117,10 @@ export default function RedeemPage() {
   };
 
   const currentPoints = pointSummary?.total_points || 0;
-  const affordableRewards = rewards.filter(reward => currentPoints >= reward.point_cost);
-  const unaffordableRewards = rewards.filter(reward => currentPoints < reward.point_cost);
+  const availableRewards = rewards.filter(reward => !(reward as any).is_redeemed);
+  const redeemedRewards = rewards.filter(reward => (reward as any).is_redeemed);
+  const affordableRewards = availableRewards.filter(reward => currentPoints >= reward.point_cost);
+  const unaffordableRewards = availableRewards.filter(reward => currentPoints < reward.point_cost);
 
   if (isLoading) {
     return (
@@ -228,7 +227,7 @@ export default function RedeemPage() {
                 {currentPoints}
               </div>
               <div className="text-green-100 text-sm">
-                {affordableRewards.length} rewards available
+                {availableRewards.length} rewards available
               </div>
             </div>
           </div>
@@ -291,6 +290,25 @@ export default function RedeemPage() {
                 </div>
               </div>
             )}
+
+            {/* Redeemed Rewards */}
+            {redeemedRewards.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                  🎉 Already Redeemed! ({redeemedRewards.length})
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {redeemedRewards.map((reward) => (
+                    <RewardCard
+                      key={reward.id}
+                      reward={reward as any}
+                      currentPoints={currentPoints}
+                      mode="redeem"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -300,9 +318,13 @@ export default function RedeemPage() {
             <p className="text-blue-700 dark:text-blue-300 text-sm">
               {currentPoints === 0 
                 ? "🌟 Start doing good things to earn your first points!"
-                : affordableRewards.length === 0 
+                : affordableRewards.length === 0 && availableRewards.length > 0
                 ? "🚀 Keep earning points to unlock these awesome rewards!"
-                : "🎉 Great job! You've earned some amazing rewards!"
+                : affordableRewards.length > 0
+                ? "🎉 Great job! You've earned some amazing rewards!"
+                : redeemedRewards.length > 0 && availableRewards.length === 0
+                ? "🏆 Wow! You've redeemed all available rewards!"
+                : "🌟 Keep earning points for future rewards!"
               }
             </p>
           </div>
