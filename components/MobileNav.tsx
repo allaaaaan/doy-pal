@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HomeIcon, CalendarIcon } from "@heroicons/react/24/outline";
+import { HomeIcon, CalendarIcon, GiftIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 
@@ -25,6 +25,7 @@ export default function MobileNav() {
     return (
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t flex items-center justify-around shadow-lg z-40">
         {/* Default placeholder content */}
+        <div className="w-20 h-full"></div>
         <div className="w-20 h-full"></div>
         <div className="w-20 h-full"></div>
       </div>
@@ -70,6 +71,23 @@ export default function MobileNav() {
           }`}
         >
           Events
+        </span>
+      </Link>
+      <Link
+        href="/redeem"
+        className="flex flex-col items-center justify-center w-20 h-full"
+      >
+        <GiftIcon
+          className={`h-6 w-6 ${
+            isActive("/redeem") ? iconActive : iconInactive
+          }`}
+        />
+        <span
+          className={`text-xs mt-1 ${
+            isActive("/redeem") ? iconActive + " font-semibold" : iconInactive
+          }`}
+        >
+          Redeem
         </span>
       </Link>
     </div>

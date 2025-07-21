@@ -27,6 +27,12 @@ export default function AdminLayout({
                 Templates
               </Link>
               <Link
+                href="/admin/rewards"
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Rewards
+              </Link>
+              <Link
                 href="/admin/link-events"
                 className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               >

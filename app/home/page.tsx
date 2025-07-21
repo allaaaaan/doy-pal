@@ -401,6 +401,18 @@ export default function EventListPage() {
               </div>
             </div>
           </div>
+          
+          {/* Redeem Button */}
+          {(pointSummary?.total_points || 0) > 0 && (
+            <div className="mt-4 pt-4 border-t border-blue-400">
+              <Link
+                href="/redeem"
+                className="block w-full py-3 px-4 bg-white/20 hover:bg-white/30 text-white text-center rounded-lg font-medium transition-colors backdrop-blur-sm"
+              >
+                🎁 Redeem Rewards
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Event History */}
