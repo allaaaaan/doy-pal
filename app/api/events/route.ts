@@ -13,9 +13,12 @@ type ResponseData = {
 };
 
 // GET /api/events
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const { data, error } = await supabase
+    const url = new URL(request.url);
+    const limit = url.searchParams.get('limit');
+    
+    let query = supabase
       .from("events")
       .select(
         `
@@ -29,6 +32,16 @@ export async function GET() {
       )
       .eq("is_active", true)
       .order("timestamp", { ascending: false });
+
+    // Apply limit if specified
+    if (limit) {
+      const limitNum = parseInt(limit);
+      if (!isNaN(limitNum) && limitNum > 0) {
+        query = query.limit(limitNum);
+      }
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     return NextResponse.json(data);

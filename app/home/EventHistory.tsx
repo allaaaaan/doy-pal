@@ -38,17 +38,15 @@ export default function EventHistory({
           </p>
         </div>
       ) : (
-        <div className="max-h-96 overflow-y-auto pr-1 -mr-1">
-          <div className="space-y-3">
-            {events.map((event) => (
-              <EventItem
-                key={event.id}
-                event={event}
-                onDelete={onDelete}
-                onEdit={onEdit}
-              />
-            ))}
-          </div>
+        <div className="space-y-3">
+          {events.map((event) => (
+            <EventItem
+              key={event.id}
+              event={event}
+              onDelete={onDelete}
+              onEdit={onEdit}
+            />
+          ))}
         </div>
       )}
     </div>
