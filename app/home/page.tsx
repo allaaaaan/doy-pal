@@ -6,6 +6,7 @@ import { Database } from "../api/types/database.types";
 import EventHistory from "./EventHistory";
 import { format } from "date-fns";
 import FloatingActionButton from "../../components/FloatingActionButton";
+import { APP_VERSION } from "../version";
 
 type Event = Database["public"]["Tables"]["events"]["Row"];
 type PointSummary = Database["public"]["Views"]["point_summaries"]["Row"];
@@ -376,10 +377,11 @@ export default function EventListPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-md mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
-            Doy Pal
-          </h1>
+        <div className="max-w-md mx-auto px-4 py-2">
+          <div className="flex items-center justify-center gap-2">
+            <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight">Doy Pal</h1>
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono align-top mt-1">v{APP_VERSION}</span>
+          </div>
         </div>
       </div>
 

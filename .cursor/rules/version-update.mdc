@@ -1,0 +1,26 @@
+---
+alwaysApply: true
+---
+
+
+# Rule: App Version Update After Feature Changes
+
+## When to apply
+- After adding or updating a feature:
+  1. Update the version in `package.json` (recommended), or set `NEXT_PUBLIC_APP_VERSION` in your environment, or update the default in `app/version.ts`.
+  2. Use [Semantic Versioning (SemVer)](https://semver.org/):
+     - **MAJOR** version (X.0.0): Increment for incompatible API changes or significant breaking changes.
+     - **MINOR** version (0.X.0): Increment for adding functionality in a backwards-compatible manner (new features).
+     - **PATCH** version (0.1.X): Increment for backwards-compatible bug fixes or minor improvements.
+  3. Commit the version bump as a separate commit (e.g., `chore: bump version to x.y.z`).
+  4. Verify the new version is displayed in the app UI.
+  5. Optionally update `CHANGELOG.md` or release notes.
+
+## Example
+- Example: After adding a new reward feature, update `package.json` from `0.1.0` to `0.2.0`, commit, and verify the UI shows `v0.2.0`.
+
+  3. Verify the new version is displayed in the app UI.
+  4. Optionally update `CHANGELOG.md` or release notes.
+
+## Example
+- Example: After adding a new reward feature, update `package.json` from `0.1.0` to `0.2.0`, commit, and verify the UI shows `v0.2.0`.

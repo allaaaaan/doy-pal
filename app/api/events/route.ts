@@ -72,7 +72,6 @@ export async function POST(request: NextRequest) {
     }
 
     // AI FEATURES DISABLED - Skip AI processing
-    let aiResult = null;
     console.log("AI processing skipped - features disabled");
 
     // If template_id is provided, update template usage
@@ -92,12 +91,6 @@ export async function POST(request: NextRequest) {
           frequency: (template?.frequency || 0) + 1,
         })
         .eq("id", eventData.template_id);
-    }
-
-    // Add AI fields if processing was successful
-    if (aiResult) {
-      eventData.normalized_description = aiResult.translatedText;
-      eventData.description_embedding = aiResult.embedding;
     }
 
     const { data, error } = await supabase
