@@ -24,6 +24,7 @@ export interface Database {
           description_embedding: number[] | null;
           normalized_description: string | null;
           template_id: string | null;
+          profile_id: string | null;
         };
         Insert: {
           id?: string;
@@ -39,6 +40,7 @@ export interface Database {
           description_embedding?: number[] | null;
           normalized_description?: string | null;
           template_id?: string | null;
+          profile_id?: string | null;
         };
         Update: {
           id?: string;
@@ -54,6 +56,33 @@ export interface Database {
           description_embedding?: number[] | null;
           normalized_description?: string | null;
           template_id?: string | null;
+          profile_id?: string | null;
+        };
+      };
+      profiles: {
+        Row: {
+          id: string;
+          name: string;
+          avatar_url: string | null;
+          created_at: string;
+          updated_at: string;
+          is_active: boolean;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          is_active?: boolean;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          is_active?: boolean;
         };
       };
       templates: {
@@ -69,6 +98,7 @@ export interface Database {
           updated_at: string;
           is_active: boolean;
           generation_batch: string | null;
+          profile_id: string | null;
         };
         Insert: {
           id?: string;
@@ -82,6 +112,7 @@ export interface Database {
           updated_at?: string;
           is_active?: boolean;
           generation_batch?: string | null;
+          profile_id?: string | null;
         };
         Update: {
           id?: string;
@@ -95,6 +126,7 @@ export interface Database {
           updated_at?: string;
           is_active?: boolean;
           generation_batch?: string | null;
+          profile_id?: string | null;
         };
       };
       template_analysis: {
@@ -107,6 +139,7 @@ export interface Database {
           ai_response_raw: any | null;
           templates_generated: number | null;
           created_at: string;
+          profile_id: string | null;
         };
         Insert: {
           id?: string;
@@ -117,6 +150,7 @@ export interface Database {
           ai_response_raw?: any | null;
           templates_generated?: number | null;
           created_at?: string;
+          profile_id?: string | null;
         };
         Update: {
           id?: string;
@@ -127,6 +161,7 @@ export interface Database {
           ai_response_raw?: any | null;
           templates_generated?: number | null;
           created_at?: string;
+          profile_id?: string | null;
         };
       };
       rewards: {
@@ -139,6 +174,7 @@ export interface Database {
           is_active: boolean;
           created_at: string;
           updated_at: string;
+          profile_id: string | null;
         };
         Insert: {
           id?: string;
@@ -149,6 +185,7 @@ export interface Database {
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
+          profile_id?: string | null;
         };
         Update: {
           id?: string;
@@ -159,35 +196,40 @@ export interface Database {
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
+          profile_id?: string | null;
         };
       };
-             redemptions: {
-         Row: {
-           id: string;
-           reward_id: string;
-           points_spent: number;
-           redeemed_at: string;
-           status: string;
-         };
-         Insert: {
-           id?: string;
-           reward_id: string;
-           points_spent: number;
-           redeemed_at?: string;
-           status?: string;
-         };
-         Update: {
-           id?: string;
-           reward_id?: string;
-           points_spent?: number;
-           redeemed_at?: string;
-           status?: string;
-         };
-       };
+      redemptions: {
+        Row: {
+          id: string;
+          reward_id: string;
+          points_spent: number;
+          redeemed_at: string;
+          status: string;
+          profile_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          reward_id: string;
+          points_spent: number;
+          redeemed_at?: string;
+          status?: string;
+          profile_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          reward_id?: string;
+          points_spent?: number;
+          redeemed_at?: string;
+          status?: string;
+          profile_id?: string | null;
+        };
+      };
     };
     Views: {
       point_summaries: {
         Row: {
+          profile_id: string;
           total_points: number;
           weekly_points: number;
           monthly_points: number;

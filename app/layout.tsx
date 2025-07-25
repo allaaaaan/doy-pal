@@ -17,13 +17,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DoY Pal",
+  title: "Doy Pal",
   description: "A rewards tracking app",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "DoY Pal",
+    title: "Doy Pal",
   },
 };
 
