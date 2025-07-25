@@ -28,14 +28,20 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-// PATCH /api/profiles/[id] - Update profile (only avatar_url allowed as per requirement)
+// PATCH /api/profiles/[id] - Update profile (name and avatar_url allowed)
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json();
-    const { avatar_url } = body;
+    const { name, avatar_url } = body;
 
-    // Only allow updating avatar_url as per user requirements
+    // Allow updating name and avatar_url
     const updates: any = {};
+    if (name !== undefined) {
+      if (!name.trim()) {
+        return NextResponse.json({ error: 'Profile name cannot be empty' }, { status: 400 });
+      }
+      updates.name = name.trim();
+    }
     if (avatar_url !== undefined) {
       updates.avatar_url = avatar_url;
     }
