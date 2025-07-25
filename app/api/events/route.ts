@@ -12,11 +12,16 @@ type ResponseData = {
   message?: string;
 };
 
-// GET /api/events
+// GET /api/events?profile_id=xxx&limit=20
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const limit = url.searchParams.get('limit');
+    const profileId = url.searchParams.get('profile_id');
+    
+    if (!profileId) {
+      return NextResponse.json({ error: 'profile_id is required' }, { status: 400 });
+    }
     
     let query = supabase
       .from("events")
@@ -31,6 +36,7 @@ export async function GET(request: NextRequest) {
       `
       )
       .eq("is_active", true)
+      .eq("profile_id", profileId)
       .order("timestamp", { ascending: false });
 
     // Apply limit if specified
@@ -58,6 +64,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    
+    if (!body.profile_id) {
+      return NextResponse.json({ error: 'profile_id is required' }, { status: 400 });
+    }
+    
     const eventData = {
       ...body,
       is_active: true,

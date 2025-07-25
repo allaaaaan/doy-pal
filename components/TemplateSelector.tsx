@@ -7,6 +7,7 @@ import {
   SparklesIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
+import { useProfile } from "../app/contexts/ProfileContext";
 
 interface Template {
   id: string;
@@ -30,14 +31,19 @@ export default function TemplateSelector({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const { currentProfile } = useProfile();
 
   useEffect(() => {
-    fetchTemplates();
-  }, []);
+    if (currentProfile) {
+      fetchTemplates();
+    }
+  }, [currentProfile]);
 
   const fetchTemplates = async () => {
+    if (!currentProfile) return;
+    
     try {
-      const response = await fetch("/api/templates");
+      const response = await fetch(`/api/templates?profile_id=${currentProfile.id}`);
       if (response.ok) {
         const data = await response.json();
         setTemplates(data.templates || []);

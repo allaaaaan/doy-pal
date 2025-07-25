@@ -5,6 +5,7 @@ import ConditionalMobileNav from "../components/ConditionalMobileNav";
 import NetworkStatus from "../components/NetworkStatus";
 import InstallPrompt from "../components/InstallPrompt";
 import ThemeProviderWrapper from "../components/ThemeProviderWrapper";
+import { ProfileProvider } from "./contexts/ProfileContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,10 +50,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground transition-colors duration-200`}
       >
         <ThemeProviderWrapper>
-          <NetworkStatus />
-          {/* <InstallPrompt /> */}
-          {children}
-          <ConditionalMobileNav />
+          <ProfileProvider>
+            <NetworkStatus />
+            {/* <InstallPrompt /> */}
+            {children}
+            <ConditionalMobileNav />
+          </ProfileProvider>
         </ThemeProviderWrapper>
       </body>
     </html>

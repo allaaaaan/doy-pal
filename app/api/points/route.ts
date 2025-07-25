@@ -10,24 +10,29 @@ type ResponseData = {
   message?: string;
 };
 
-// GET /api/points
-export async function GET() {
+// GET /api/points?profile_id=xxx
+export async function GET(request: NextRequest) {
   try {
-    // NOTE: The point_summaries view should be updated in the database to include
-    // WHERE is_active = true in its definition to only count active events
+    const { searchParams } = new URL(request.url);
+    const profileId = searchParams.get('profile_id');
 
-    // First try to get points from the view (assuming it's been updated)
+    if (!profileId) {
+      return NextResponse.json({ error: 'profile_id is required' }, { status: 400 });
+    }
+
+    // Try to get points from the profile-specific view
     const { data: viewData, error: viewError } = await supabase
       .from("point_summaries")
       .select("*")
+      .eq("profile_id", profileId)
       .single();
 
     if (!viewError && viewData) {
       return NextResponse.json(viewData);
     }
 
-    // If the view doesn't exist or hasn't been updated, calculate points manually
-    console.log("Calculating points manually (view may need update)");
+    // If the view doesn't work, calculate points manually for the specific profile
+    console.log("Calculating points manually for profile:", profileId);
 
     const now = new Date();
     const weekStart = new Date(now);
@@ -36,11 +41,12 @@ export async function GET() {
 
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    // Get all active events
+    // Get all active events for this profile
     const { data: events, error: eventsError } = await supabase
       .from("events")
       .select("points, timestamp")
-      .eq("is_active", true);
+      .eq("is_active", true)
+      .eq("profile_id", profileId);
 
     if (eventsError) throw eventsError;
 
@@ -49,25 +55,26 @@ export async function GET() {
     let monthlyPoints = 0;
 
     events?.forEach((event) => {
-      const eventDate = new Date(event.timestamp);
+      const eventTime = new Date(event.timestamp);
       totalPoints += event.points;
 
-      if (eventDate >= weekStart) {
+      if (eventTime >= weekStart) {
         weeklyPoints += event.points;
       }
 
-      if (eventDate >= monthStart) {
+      if (eventTime >= monthStart) {
         monthlyPoints += event.points;
       }
     });
 
-    const pointSummary = {
+    const summary: PointSummary = {
+      profile_id: profileId,
       total_points: totalPoints,
       weekly_points: weeklyPoints,
       monthly_points: monthlyPoints,
     };
 
-    return NextResponse.json(pointSummary);
+    return NextResponse.json(summary);
   } catch (error) {
     console.error("Error fetching points:", error);
     return NextResponse.json(

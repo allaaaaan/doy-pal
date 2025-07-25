@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../lib/supabase";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const profileId = searchParams.get('profile_id');
+
+    if (!profileId) {
+      return NextResponse.json({ error: 'profile_id is required' }, { status: 400 });
+    }
+
     const { data: templates, error } = await supabase
       .from("templates")
       .select("*")
       .eq("is_active", true)
+      .eq("profile_id", profileId)
       .order("frequency", { ascending: false });
 
     if (error) {
@@ -30,12 +38,12 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, default_points, frequency, ai_confidence } =
+    const { name, description, default_points, frequency, ai_confidence, profile_id } =
       body;
 
-    if (!name || !description || default_points === undefined) {
+    if (!name || !description || default_points === undefined || !profile_id) {
       return NextResponse.json(
-        { error: "Missing required fields: name, description, default_points" },
+        { error: "Missing required fields: name, description, default_points, profile_id" },
         { status: 400 }
       );
     }
@@ -48,7 +56,7 @@ export async function POST(request: NextRequest) {
         default_points,
         frequency: frequency || 0,
         ai_confidence: ai_confidence || null,
-        last_seen: new Date().toISOString(),
+        profile_id,
         is_active: true,
       })
       .select()
@@ -62,12 +70,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
-      template,
-      message: "Template created successfully",
-    });
+    return NextResponse.json({ template }, { status: 201 });
   } catch (error) {
-    console.error("Templates API error:", error);
+    console.error("Template creation error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

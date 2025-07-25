@@ -6,12 +6,14 @@ import { useRouter } from "next/navigation";
 import { Database } from "../api/types/database.types";
 import RewardCard from "../../components/RewardCard";
 import { ArrowLeftIcon, StarIcon } from "@heroicons/react/24/outline";
+import { useProfile } from "../contexts/ProfileContext";
 
 type Reward = Database["public"]["Tables"]["rewards"]["Row"];
 type PointSummary = Database["public"]["Views"]["point_summaries"]["Row"];
 
 export default function RedeemPage() {
   const router = useRouter();
+  const { currentProfile } = useProfile();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [pointSummary, setPointSummary] = useState<PointSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,8 +26,10 @@ export default function RedeemPage() {
   const [toastType, setToastType] = useState<"success" | "error">("success");
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (currentProfile) {
+      loadData();
+    }
+  }, [currentProfile]);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToastMessage(message);
@@ -35,14 +39,16 @@ export default function RedeemPage() {
   };
 
   const loadData = async () => {
+    if (!currentProfile) return;
+    
     try {
       setIsLoading(true);
       setError(null);
 
       // Fetch rewards and points in parallel
       const [rewardsResponse, pointsResponse] = await Promise.all([
-        fetch("/api/rewards"),
-        fetch("/api/points")
+        fetch(`/api/rewards?profile_id=${currentProfile.id}`),
+        fetch(`/api/points?profile_id=${currentProfile.id}`)
       ]);
 
       if (!rewardsResponse.ok) {
@@ -63,9 +69,8 @@ export default function RedeemPage() {
       setRewards(rewardsData.rewards || []);
       setPointSummary(pointsData);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load data";
-      setError(errorMessage);
       console.error("Error loading data:", err);
+      setError(err instanceof Error ? err.message : "Failed to load data");
     } finally {
       setIsLoading(false);
     }

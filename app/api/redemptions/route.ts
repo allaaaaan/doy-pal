@@ -5,11 +5,16 @@ import { Database } from "../types/database.types";
 type Redemption = Database["public"]["Tables"]["redemptions"]["Row"];
 type NewRedemption = Database["public"]["Tables"]["redemptions"]["Insert"];
 
-// GET /api/redemptions - Get redemption history
+// GET /api/redemptions?profile_id=xxx&include_withdrawn=false - Get redemption history for profile
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const profileId = searchParams.get('profile_id');
     const includeWithdrawn = searchParams.get('include_withdrawn') === 'true';
+
+    if (!profileId) {
+      return NextResponse.json({ error: 'profile_id is required' }, { status: 400 });
+    }
 
     let query = supabase
       .from("redemptions")
@@ -21,7 +26,8 @@ export async function GET(request: NextRequest) {
           point_cost,
           image_url
         )
-      `);
+      `)
+      .eq('profile_id', profileId);
 
     // Filter by status unless explicitly including withdrawn
     if (!includeWithdrawn) {

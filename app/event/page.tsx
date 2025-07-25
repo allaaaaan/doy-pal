@@ -12,6 +12,7 @@ import {
 } from "@heroicons/react/24/outline";
 import TemplateSelector from "../../components/TemplateSelector";
 import TemplateQuickTip from "../../components/TemplateQuickTip";
+import { useProfile } from "../contexts/ProfileContext";
 
 interface Template {
   id: string;
@@ -24,6 +25,7 @@ interface Template {
 
 export default function EventFormPage() {
   const router = useRouter();
+  const { currentProfile } = useProfile();
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
     null
   );
@@ -76,6 +78,12 @@ export default function EventFormPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!currentProfile) {
+      showToast("Please select a profile first", "error");
+      return;
+    }
+    
     if (!description.trim()) {
       showToast("Please enter an event description", "error");
       return;
@@ -103,6 +111,7 @@ export default function EventFormPage() {
         day_of_week: days[timestamp.getDay()],
         day_of_month: timestamp.getDate(),
         template_id: selectedTemplate?.id || null,
+        profile_id: currentProfile.id,
       };
 
       const response = await fetch("/api/events", {
@@ -118,15 +127,14 @@ export default function EventFormPage() {
       showToast("Event added successfully! 🎉");
 
       // Reset form
-      setSelectedTemplate(null);
       setName("");
       setDescription("");
       setPoints(1);
-      formRef.current?.reset();
+      setSelectedTemplate(null);
 
-      // Navigate back after a brief delay to show success
+      // Navigate back to home after a brief delay
       setTimeout(() => {
-        router.push("/");
+        router.push("/home");
       }, 1500);
     } catch (error) {
       console.error("Error creating event:", error);

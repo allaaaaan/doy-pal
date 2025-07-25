@@ -5,13 +5,21 @@ import { Database } from "../types/database.types";
 type Reward = Database["public"]["Tables"]["rewards"]["Row"];
 type NewReward = Database["public"]["Tables"]["rewards"]["Insert"];
 
-// GET /api/rewards - List active rewards with redemption status
-export async function GET() {
+// GET /api/rewards?profile_id=xxx - List active rewards with redemption status for profile
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const profileId = searchParams.get('profile_id');
+
+    if (!profileId) {
+      return NextResponse.json({ error: 'profile_id is required' }, { status: 400 });
+    }
+
     const { data: rewards, error } = await supabase
       .from("rewards")
       .select("*")
       .eq("is_active", true)
+      .eq("profile_id", profileId)
       .order("point_cost", { ascending: true });
 
     if (error) {
@@ -22,14 +30,15 @@ export async function GET() {
       );
     }
 
-    // Process rewards to add redemption status
+    // Process rewards to add redemption status for this profile
     const rewardsWithStatus = await Promise.all(
       rewards?.map(async (reward) => {
-        // Check if this reward has been redeemed (and not withdrawn)
+        // Check if this reward has been redeemed by this profile (and not withdrawn)
         const { data: activeRedemption } = await supabase
           .from("redemptions")
           .select("id, redeemed_at")
           .eq("reward_id", reward.id)
+          .eq("profile_id", profileId)
           .eq("status", "active")
           .single();
 
