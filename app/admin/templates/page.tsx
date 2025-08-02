@@ -7,6 +7,7 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { useProfile } from "../../contexts/ProfileContext";
 
 interface Template {
   id: string;
@@ -36,6 +37,7 @@ interface TemplateFormData {
 }
 
 export default function TemplatesAdminPage() {
+  const { currentProfile } = useProfile();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
@@ -57,12 +59,20 @@ export default function TemplatesAdminPage() {
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTemplates();
-  }, []);
+    if (currentProfile) {
+      fetchTemplates();
+    }
+  }, [currentProfile]);
 
   const fetchTemplates = async () => {
+    if (!currentProfile) {
+      setError("No profile selected");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch("/api/templates");
+      const response = await fetch(`/api/templates?profile_id=${currentProfile.id}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -128,6 +138,11 @@ export default function TemplatesAdminPage() {
 
   const handleCreateTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentProfile) {
+      setFormError("No profile selected");
+      return;
+    }
+
     setFormLoading(true);
     setFormError(null);
 
@@ -142,6 +157,7 @@ export default function TemplatesAdminPage() {
           description: formData.description,
           default_points: formData.default_points,
           ai_confidence: formData.ai_confidence,
+          profile_id: currentProfile.id,
         }),
       });
 
@@ -357,6 +373,21 @@ export default function TemplatesAdminPage() {
     );
   }
 
+  if (!currentProfile) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg text-gray-900 dark:text-white mb-2">
+            No Profile Selected
+          </div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Please select a profile to manage templates
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-6xl mx-auto">
@@ -369,7 +400,12 @@ export default function TemplatesAdminPage() {
             <div className="flex flex-col sm:flex-row gap-2">
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
+                disabled={!currentProfile}
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                  currentProfile
+                    ? "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
+                    : "bg-gray-400 cursor-not-allowed text-white"
+                }`}
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Create Template
@@ -403,6 +439,7 @@ export default function TemplatesAdminPage() {
           )}
 
           <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Profile: <span className="font-medium text-gray-900 dark:text-white">{currentProfile.name}</span> | 
             Current templates: {templates.length} | Mix of AI-generated and
             manually created templates
           </div>
